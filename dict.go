@@ -3,137 +3,98 @@ package main
 const posidCount = 2000
 
 type Dictionary struct {
-	texts [][]uint8
+	Texts [][]uint8
 	// 0は空文字列
 
-	surfaceArray []Surface
+	SurfaceArray []Surface
 
-	morphArray []Morph
+	MorphArray []Morph
 	// 0はterminator
 
-	da *DoubleArray
+	Da *DoubleArray
 
-	connTable []uint16
+	ConnTable []uint16
 }
 
 type Surface struct {
-	textId uint32
-	morphs []uint32
+	TextId uint32
+	Morphs []uint32
 }
 
 type Morph struct {
-	leftPosid uint16
-	rightPosid uint16
-	wordCost uint16
-	kanaId uint32
+	LeftPosid uint16
+	RightPosid uint16
+	WordCost uint16
+	BaseId uint32
+	KanaId uint32
 }
 
-func makeDictionary() *Dictionary {
+func makeDictionary(surfaceArraySize int, morphArraySize int) *Dictionary {
 	dict := new(Dictionary)
-	dict.surfaceArray = make([]Surface, 1, 1000)
-	dict.morphArray = make([]Morph, 1, 1000)
-	dict.da = makeDoubleArray()
+	dict.SurfaceArray = make([]Surface, 1, surfaceArraySize)
+	dict.MorphArray = make([]Morph, 1, morphArraySize)
+	dict.Da = makeDoubleArray(1000)
 
-	dict.surfaceArray[0] = Surface{0, make([]uint32, 1, 1000)}
-	dict.surfaceArray[0].morphs[0] = 0
-	dict.morphArray[0] = Morph{0, 0, 0, 0}
+	dict.SurfaceArray[0] = Surface{0, make([]uint32, 1, 1000)}
+	dict.SurfaceArray[0].Morphs[0] = 0
+	dict.MorphArray[0] = Morph{0, 0, 0, 0, 0}
+
+	dict.ConnTable = make([]uint16, posidCount * posidCount)
 
 	return dict
 }
 
-func (dict *Dictionary) addMorph(ta *TextArray, surface []uint8, leftPosid uint16, rightPosid uint16, wordCost uint16, kana []uint8) {
-	surfaceTextId, err := ta.getWordIndex(surface)
-	if err != nil {
-		panic(err)
-	}
-	kanaId, err := ta.getWordIndex(kana)
-	if err != nil {
-		panic(err)
-	}
+func (dict *Dictionary) _resizeSurfaceArray() {
+  size := len(dict.SurfaceArray)
+  newSize := size * 3 / 2
+  newSurfaceArray := make([]Surface, size, newSize)
+  copy(newSurfaceArray[:size], dict.SurfaceArray)
+  dict.SurfaceArray = newSurfaceArray
+}
 
-	var lastSurface = &dict.surfaceArray[len(dict.surfaceArray) - 1]
-	if lastSurface.textId != surfaceTextId {
-		s := Surface{surfaceTextId, make([]uint32, 0, 1)}
-		l := len(dict.surfaceArray)
-		if cap(dict.surfaceArray) == l {
-			s := make([]Surface, l, l * 3 / 2)
-			copy(s, dict.surfaceArray)
-			dict.surfaceArray = s
+func (dict *Dictionary) _resizeMorphArray() {
+  size := len(dict.MorphArray)
+  newSize := size * 3 / 2
+  newMorphArray := make([]Morph, size, newSize)
+  copy(newMorphArray[:size], dict.MorphArray)
+  dict.MorphArray = newMorphArray
+}
+
+func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, baseId uint32, kanaId uint32) {
+	var lastSurface = &dict.SurfaceArray[len(dict.SurfaceArray) - 1]
+	if lastSurface.TextId != surfaceId {
+		s := Surface{surfaceId, make([]uint32, 0, 1)}
+		if cap(dict.SurfaceArray) == len(dict.SurfaceArray) {
+			dict._resizeSurfaceArray()
 		}
-		dict.surfaceArray = append(dict.surfaceArray, s)
-		lastSurface = &dict.surfaceArray[len(dict.surfaceArray) - 1]
+		dict.SurfaceArray = append(dict.SurfaceArray, s)
+		lastSurface = &dict.SurfaceArray[len(dict.SurfaceArray) - 1]
 	}
-	morphId := uint32(len(dict.morphArray))
-	lastSurface.morphs = append(lastSurface.morphs, morphId)
-	l := len(dict.morphArray)
-	if cap(dict.morphArray) == l {
-		s := make([]Morph, l, l * 3 / 2)
-		copy(s, dict.morphArray)
-		dict.morphArray = s
+	morphId := uint32(len(dict.MorphArray))
+	lastSurface.Morphs = append(lastSurface.Morphs, morphId)
+	if cap(dict.MorphArray) == len(dict.MorphArray) {
+		dict._resizeMorphArray()
 	}
-	dict.morphArray = append(dict.morphArray, Morph{leftPosid, rightPosid, wordCost, kanaId})
+	dict.MorphArray = append(dict.MorphArray, Morph{leftPosid, rightPosid, wordCost, baseId, kanaId})
 }
 
 func (dict *Dictionary) build(ta *TextArray) {
-	dict.texts = ta.texts
-	l := len(dict.surfaceArray)
+	dict.Texts = ta.Texts
+	l := len(dict.SurfaceArray)
 	words := make([]uint32, l)
 	infos := make([]uint32, l)
-	for i, s := range dict.surfaceArray {
-		words[i] = s.textId
+	for i, s := range dict.SurfaceArray {
+		words[i] = s.TextId
 		infos[i] = uint32(i)
 	}
-	dict.da.putWords(words, dict.texts, infos, 0, 1)
+	dict.Da.putWords(words, dict.Texts, infos)
 }
 
-
-
-
-
-/*
-func makeDictionary() *Dictionary {
-  ret := new(Dictionary)
-  ret.textArray = make([]Text, 1024)
-  ret.morphArray = make([]Morph, 1024)
-  ret.morphMetaArray = make([]MorphMeta, 1024)
-  ret.connTable = make([]uint16, posidCount * posidCount)
-  return ret
+func (dict *Dictionary) setConnCost(rightPosid uint16, leftPosid uint16, value uint16) {
+	dict.ConnTable[rightPosid * posidCount + leftPosid] = value
 }
 
-func (dict *Dictionary) getConnectionCost(rightPosid uint16, leftPosid uint16) int {
-  return int(dict.connTable[rightPosid * posidCount + leftPosid])
+func (dict *Dictionary) getConnCost(rightPosid uint16, leftPosid uint16) uint16 {
+	return dict.ConnTable[rightPosid * posidCount + leftPosid]
 }
-*/
-
-/*
-func (dict *Dictionary) addText(text []uint8) uint32 {
-	id := uint32(len(dict.textArray))
-	textObj := new Text{text}
-	dict.textArray = append(dict.textArray, textObj)
-	return id
-}
-*/
-
-/*
-func (dict *Dictionary) addMorph(surface []uint8, leftPosid uint16, rightPosid uint16, wordCost uint16) {
-}
-*/
-
-/*
-func (dict *Dictionary) addSurface(surface []uint8) {
-	newText := Text{surface}
-	l := len(dict.textArray)
-	if l == cap(dict.textArray) {
-		newArray := make([]Text, l + 1, l * 1.25)
-		copy(newArray, dict.textArray)
-		newArray[l] = newText
-		dict.textArray = newArray
-	} else {
-		dict.textArray = append(dict.textArray, newText)
-	}
-}
-
-func addMorph(dict *Dictionary, da *DoubleArray, surfaceTextId uint32) {
-}
-*/
 
