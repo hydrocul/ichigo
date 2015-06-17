@@ -1,7 +1,7 @@
 package main
 
-import "testing"
 //import "reflect"
+import "testing"
 
 func TestBuildingDictionary(t *testing.T) {
 /*

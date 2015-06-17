@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 import "bytes"
 import "compress/gzip"
 import "encoding/gob"
@@ -10,7 +8,6 @@ import "io"
 func loadDictionary() *Dictionary {
 	var bindata =
 		[]uint8("COMPRESSED-DICT-DATA") // DO NOT EDIT THIS LINE
-	fmt.Printf("DEBUG %#v\n", bindata[0:35])
 	reader, err := gzip.NewReader(bytes.NewBuffer(bindata))
 	if err != nil {
 		panic(err)

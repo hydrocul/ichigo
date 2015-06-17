@@ -35,7 +35,7 @@ func parseTextsFile(fname string) *TextArray {
 }
 
 func parseDictFile(fname string, ta *TextArray) *Dictionary {
-	dict := makeDictionary(400000, 600000)
+	dict := makeDictionary(400000, 600000, 600000)
 
 	fp, err := os.Open(fname)
 	if err != nil {
@@ -104,7 +104,7 @@ func parseMatrixFile(fname string, dict *Dictionary) {
 			panic(err)
 		}
 
-		dict.setConnCost(uint16(rightPosid), uint16(leftPosid), uint16(cost))
+		dict.setConnCost(uint16(rightPosid), uint16(leftPosid), int16(cost))
 	}
 }
 
