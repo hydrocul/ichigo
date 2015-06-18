@@ -50,36 +50,6 @@ func makePipe(dict *Dictionary) *Pipe {
 	return pipe
 }
 
-func _makeStartMorphNode() *MorphNode {
-	node := new(MorphNode)
-	node.text = make([]uint8, 0)
-	return node
-}
-
-func _makeEndMorphNode(rightBytePos int, rightCodePointPos int) *MorphNode {
-	node := new(MorphNode)
-	node.text = make([]uint8, 0)
-	node.leftBytePos = rightBytePos
-	node.leftCodePointPos = rightCodePointPos
-	node.rightBytePos = rightBytePos
-	node.rightCodePointPos = rightCodePointPos
-	return node
-}
-
-// 文字クラスタ1つだけの未知語を生成
-func _makeOneCharUnknownMorphNode(surface []uint8, leftBytePos int, leftCodePointPos int, rightBytePos int, rightCodePointPos int) *MorphNode {
-	node := new(MorphNode)
-	node.text = surface
-	node.leftPosid = 5
-	node.rightPosid = 5
-	node.wordCost = 20000
-	node.leftBytePos = leftBytePos
-	node.leftCodePointPos = leftCodePointPos
-	node.rightBytePos = rightBytePos
-	node.rightCodePointPos = rightCodePointPos
-	return node
-}
-
 func (pipe *Pipe) parseText(text []uint8) {
 	var text2 []uint8
 	var isEos bool = false
@@ -108,6 +78,45 @@ func (pipe *Pipe) shiftMorphNodes() []*MorphNode {
 		}
 	}
 	return ret
+}
+
+func (pipe *Pipe) getSurface(node *MorphNode) []uint8 {
+	t := node.surfaceTextId
+	if t == 0 {
+		return node.text
+	} else {
+		return pipe.dict.Texts[t]
+	}
+}
+
+func _makeStartMorphNode() *MorphNode {
+	node := new(MorphNode)
+	node.text = make([]uint8, 0)
+	return node
+}
+
+func _makeEndMorphNode(rightBytePos int, rightCodePointPos int) *MorphNode {
+	node := new(MorphNode)
+	node.text = make([]uint8, 0)
+	node.leftBytePos = rightBytePos
+	node.leftCodePointPos = rightCodePointPos
+	node.rightBytePos = rightBytePos
+	node.rightCodePointPos = rightCodePointPos
+	return node
+}
+
+// 文字クラスタ1つだけの未知語を生成
+func _makeOneCharUnknownMorphNode(surface []uint8, leftBytePos int, leftCodePointPos int, rightBytePos int, rightCodePointPos int) *MorphNode {
+	node := new(MorphNode)
+	node.text = surface
+	node.leftPosid = unigramUnknownLeftPosid
+	node.rightPosid = unigramUnknownRightPosid
+	node.wordCost = unigramUnknownWordCost
+	node.leftBytePos = leftBytePos
+	node.leftCodePointPos = leftCodePointPos
+	node.rightBytePos = rightBytePos
+	node.rightCodePointPos = rightCodePointPos
+	return node
 }
 
 func (pipe *Pipe) _parseTextSub(text []uint8, isEos bool) {

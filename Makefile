@@ -1,3 +1,5 @@
+ichigo: go/bin/ichigo
+	cp go/bin/ichigo ichigo
 
 test: test1 test2
 
@@ -73,7 +75,7 @@ go/src/hydrocul/ichigo_build/texts.go: texts.go go/src/hydrocul/ichigo_build
 
 
 
-test2: test1 go/src/hydrocul/ichigo_test2/da.go go/src/hydrocul/ichigo_test2/dict.go go/src/hydrocul/ichigo_test2/dict_data.go go/src/hydrocul/ichigo_test2/texts.go go/src/hydrocul/ichigo_test2/pipe.go go/src/hydrocul/ichigo_test2/pipe_test.go
+test2: go/src/hydrocul/ichigo_test2/da.go go/src/hydrocul/ichigo_test2/dict.go go/src/hydrocul/ichigo_test2/dict_data.go go/src/hydrocul/ichigo_test2/texts.go go/src/hydrocul/ichigo_test2/pipe.go go/src/hydrocul/ichigo_test2/pipe_test.go go/src/hydrocul/ichigo_test2/posid.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo_test2 -bench .
 
 go/src/hydrocul/ichigo_test2:
@@ -97,9 +99,12 @@ go/src/hydrocul/ichigo_test2/pipe.go: pipe.go go/src/hydrocul/ichigo_test2
 go/src/hydrocul/ichigo_test2/pipe_test.go: pipe_test.go go/src/hydrocul/ichigo_test2
 	cp pipe_test.go go/src/hydrocul/ichigo_test2/pipe_test.go
 
+go/src/hydrocul/ichigo_test2/posid.go: posid.go go/src/hydrocul/ichigo_test2
+	cp posid.go go/src/hydrocul/ichigo_test2/posid.go
 
 
-go/bin/ichigo: go/src/hydrocul/ichigo/main.go go/src/hydrocul/ichigo/da.go go/src/hydrocul/ichigo/dict.go go/src/hydrocul/ichigo/dict_data.go go/src/hydrocul/ichigo/texts.go
+
+go/bin/ichigo: go/src/hydrocul/ichigo/main.go go/src/hydrocul/ichigo/da.go go/src/hydrocul/ichigo/dict.go go/src/hydrocul/ichigo/dict_data.go go/src/hydrocul/ichigo/texts.go go/src/hydrocul/ichigo/pipe.go go/src/hydrocul/ichigo/posid.go
 	GOPATH=$(realpath .)/go go install hydrocul/ichigo
 
 go/src/hydrocul/ichigo:
@@ -119,6 +124,12 @@ go/src/hydrocul/ichigo/dict_data.go: var/dict_data.go go/src/hydrocul/ichigo
 
 go/src/hydrocul/ichigo/texts.go: texts.go go/src/hydrocul/ichigo
 	cp texts.go go/src/hydrocul/ichigo/texts.go
+
+go/src/hydrocul/ichigo/pipe.go: pipe.go go/src/hydrocul/ichigo
+	cp pipe.go go/src/hydrocul/ichigo/pipe.go
+
+go/src/hydrocul/ichigo/posid.go: posid.go go/src/hydrocul/ichigo
+	cp posid.go go/src/hydrocul/ichigo/posid.go
 
 
 
