@@ -26,11 +26,11 @@ type DAStatus struct {
 
 type MorphNode struct {
 	text []uint8
-	surfaceTextId uint32
+	surfaceTextId uint32 // 未知語の場合は0
 	leftPosid uint16
 	rightPosid uint16
 	wordCost uint16
-	metaId uint32
+	metaId uint32 // 未知語の場合は0
 	leftBytePos int
 	leftCodePointPos int
 	rightBytePos int
@@ -45,11 +45,39 @@ func makePipe(dict *Dictionary) *Pipe {
 	pipe.daStatuses = make([]*DAStatus, 1)
 	pipe.daStatuses[0] = new(DAStatus)
 	pipe.daStatuses[0].daIndex = 1
-	morphNode := new(MorphNode)
-	morphNode.text = make([]uint8, 0)
-	pipe.daStatuses[0].prevMorphs = []*MorphNode{morphNode}
+	pipe.daStatuses[0].prevMorphs = []*MorphNode{_makeStartMorphNode()}
 	pipe.dict = dict
 	return pipe
+}
+
+func _makeStartMorphNode() *MorphNode {
+	node := new(MorphNode)
+	node.text = make([]uint8, 0)
+	return node
+}
+
+func _makeEndMorphNode(rightBytePos int, rightCodePointPos int) *MorphNode {
+	node := new(MorphNode)
+	node.text = make([]uint8, 0)
+	node.leftBytePos = rightBytePos
+	node.leftCodePointPos = rightCodePointPos
+	node.rightBytePos = rightBytePos
+	node.rightCodePointPos = rightCodePointPos
+	return node
+}
+
+// 文字クラスタ1つだけの未知語を生成
+func _makeOneCharUnknownMorphNode(surface []uint8, leftBytePos int, leftCodePointPos int, rightBytePos int, rightCodePointPos int) *MorphNode {
+	node := new(MorphNode)
+	node.text = surface
+	node.leftPosid = 5
+	node.rightPosid = 5
+	node.wordCost = 20000
+	node.leftBytePos = leftBytePos
+	node.leftCodePointPos = leftCodePointPos
+	node.rightBytePos = rightBytePos
+	node.rightCodePointPos = rightCodePointPos
+	return node
 }
 
 func (pipe *Pipe) parseText(text []uint8) {
@@ -191,14 +219,7 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 		for i := 0; i < len(ss); i++ {
 			s := ss[i]
 			if s.daIndex == 1 {
-				eosNode := new(MorphNode)
-				eosNode.text = make([]uint8, 0)
-				eosNode.leftBytePos = rightBytePos
-				eosNode.leftCodePointPos = rightCodePointPos
-				eosNode.rightBytePos = rightBytePos
-				eosNode.rightCodePointPos = rightCodePointPos
-				nodes := make([]*MorphNode, 1)
-				nodes[0] = eosNode
+				nodes := []*MorphNode{_makeEndMorphNode(rightBytePos, rightCodePointPos)}
 				_findMinimumPath(pipe.dict, s.prevMorphs, nodes)
 				newS.prevMorphs = append(newS.prevMorphs, nodes...)
 			}
@@ -207,6 +228,13 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 		ret = make([]*DAStatus, 0, len(ss) * 2)
 		for i := 0; i < len(ss); i++ {
 			s := ss[i]
+			if s.daIndex == 1 {
+				// とりあえず1文字クラスタの未知語を確保する
+				unknownNode := _makeOneCharUnknownMorphNode(text[leftPos:rightPos], leftBytePos, leftCodePointPos, rightBytePos, rightCodePointPos)
+				nodes := []*MorphNode{unknownNode}
+				_findMinimumPath(pipe.dict, s.prevMorphs, nodes)
+				newS.prevMorphs = append(newS.prevMorphs, nodes...)
+			}
 			f := true
 			for j := leftPos; j < rightPos; j++ {
 				if ! pipe._nextByte(s, text[j]) {
@@ -239,7 +267,7 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 			_DEBUG_printNodes(s.prevMorphs[j])
 		}
 	}
-*/
+// */
 	return ret
 }
 
@@ -261,6 +289,9 @@ func (pipe *Pipe) _nextByte(s *DAStatus, ch uint8) bool {
 
 func (pipe *Pipe) _getMorphNodes(s *DAStatus, text []uint8, rightPos int, rightBytePos int, rightCodePointPos int) []*MorphNode {
 	surfaceId := pipe.dict.Da.getInfo(s.daIndex)
+	if surfaceId == 0 {
+		return make([]*MorphNode, 0)
+	}
 	surfaceTextId := pipe.dict.SurfaceArray[surfaceId].TextId
 	morphIds := pipe.dict.SurfaceArray[surfaceId].Morphs
 	ret := make([]*MorphNode, len(morphIds))
