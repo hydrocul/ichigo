@@ -2,7 +2,6 @@
 
 # 表層形 左文脈ID 右文脈ID コスト 品詞名 原形 読み
 
-cat var/dict2.txt |
 perl -nle '
     @F = split(/\t/, $_);
     print $F[0];

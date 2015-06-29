@@ -4,7 +4,7 @@ cat dict_data.go | while read line; do
     if echo $line | grep COMPRESSED-DICT-DATA >/dev/null; then
         echo -n '[]uint8("'
 
-        cat var/dict3.dat |
+        cat $1 |
         perl -e '
             sub conv {
                 my ($ch) = @_;
