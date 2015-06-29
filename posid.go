@@ -1,6 +1,8 @@
 package main
 
-const unigramUnknownLeftPosid = 5
-const unigramUnknownRightPosid = 5
-const unigramUnknownWordCost = 20000
+const unigramUnknownLeftPosid = 1
+const unigramUnknownRightPosid = 1
+const unigramUnknownWordCost = 10000
+
+const maxConnCost = 25400
 

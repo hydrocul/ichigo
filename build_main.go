@@ -47,6 +47,12 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 	for scanner.Scan() {
 		text := scanner.Text()
 		cols := strings.Split(text, "\t")
+		if len(cols) <=1 {
+			continue;
+		}
+		if cols[0][0] == '#' {
+			continue;
+		}
 		surfaceTextId, err := ta.getWordIndex([]uint8(cols[0]))
 		if err != nil {
 			panic(err)
@@ -63,16 +69,20 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 		if err != nil {
 			panic(err)
 		}
-		baseTextId, err := ta.getWordIndex([]uint8(cols[4]))
+		posnameTextId, err := ta.getWordIndex([]uint8(cols[4]))
 		if err != nil {
 			panic(err)
 		}
-		kanaTextId, err := ta.getWordIndex([]uint8(cols[5]))
+		baseTextId, err := ta.getWordIndex([]uint8(cols[5]))
+		if err != nil {
+			panic(err)
+		}
+		kanaTextId, err := ta.getWordIndex([]uint8(cols[6]))
 		if err != nil {
 			panic(err)
 		}
 
-		dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), baseTextId, kanaTextId)
+		dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
 	}
 
 	dict.build(ta)
@@ -91,6 +101,12 @@ func parseMatrixFile(fname string, dict *Dictionary) {
 	for scanner.Scan() {
 		text := scanner.Text()
 		cols := strings.Split(text, "\t")
+		if len(cols) <=1 {
+			continue;
+		}
+		if cols[0][0] == '#' {
+			continue;
+		}
 		rightPosid, err := strconv.Atoi(cols[0])
 		if err != nil {
 			panic(err)

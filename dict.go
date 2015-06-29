@@ -31,6 +31,7 @@ type Morph struct {
 }
 
 type Meta struct {
+	PosnameId uint32
 	BaseId uint32
 	KanaId uint32
 }
@@ -45,7 +46,7 @@ func makeDictionary(surfaceArraySize int, morphArraySize int, metaArraySize int)
 	dict.SurfaceArray[0] = Surface{0, make([]uint32, 1, 1000)}
 	dict.SurfaceArray[0].Morphs[0] = 0
 	dict.MorphArray[0] = Morph{0, 0, 0, 0}
-	dict.MetaArray[0] = Meta{0, 0}
+	dict.MetaArray[0] = Meta{0, 0, 0}
 
 	dict.ConnTable = make([]int16, posidCount * posidCount)
 
@@ -77,12 +78,12 @@ func (dict *Dictionary) _resizeMetaArray() {
 }
 
 // TODO surface, leftPosid, rightPosid が同じ複数のmorphは追加できないように
-func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, baseId uint32, kanaId uint32) {
+func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, posnameId uint32, baseId uint32, kanaId uint32) {
 	if cap(dict.MetaArray) == len(dict.MetaArray) {
 		dict._resizeMetaArray()
 	}
 	metaId := uint32(len(dict.MetaArray))
-	dict.MetaArray = append(dict.MetaArray, Meta{baseId, kanaId})
+	dict.MetaArray = append(dict.MetaArray, Meta{posnameId, baseId, kanaId})
 
 	if cap(dict.MorphArray) == len(dict.MorphArray) {
 		dict._resizeMorphArray()

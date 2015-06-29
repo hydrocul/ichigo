@@ -2,7 +2,7 @@
 
 # 表層形,左文脈ID,右文脈ID,コスト,品詞,品詞細分類1,品詞細分類2,品詞細分類3,活用形,活用型,原形,読み,発音
 # ↓
-# 表層形 左文脈ID 右文脈ID コスト 原形 読み
+# 表層形 左文脈ID 右文脈ID コスト 品詞名 原形 読み
 
 cat var/dict1.txt |
 perl -Mutf8 -MEncode -nle '
@@ -20,7 +20,7 @@ perl -Mutf8 -MEncode -nle '
       }
     }
     $hiragana = encode_utf8($hiragana);
-    print "$F[0]\t$F[1]\t$F[2]\t$F[3]\t$F[10]\t$hiragana";
+    print "$F[0]\t$F[1]\t$F[2]\t$F[3]\t-\t$F[10]\t$hiragana";
 '
 
 

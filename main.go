@@ -8,6 +8,8 @@ import "os"
 
 func main() {
 	simpleFormat := flag.Bool("simple-format", false, "simple format")
+	middleFormat := flag.Bool("middle-format", false, "middle format")
+	eachLine := flag.Bool("each-line", false, "each line")
 	flag.Parse()
 
 	var fp *os.File
@@ -32,27 +34,53 @@ func main() {
 		if err != nil && err != io.EOF {
 			panic(err)
 		}
-		{
-			// line には最後の改行を含む
-			nodes := pushText(pipe, line);
-			if *simpleFormat {
-				printSimple(pipe, nodes)
-			} else {
-				printVerbose(pipe, nodes)
+		if *eachLine {
+			var lfflag bool
+			line, lfflag = trimLF(line)
+			// line には最後の改行を含まない
+			{
+				nodes := pushText(pipe, line);
+				printNode(pipe, nodes, *simpleFormat, *middleFormat)
 			}
-		}
-		if err == io.EOF {
-			nodes := pushEOF(pipe);
-			if *simpleFormat {
-				printSimple(pipe, nodes)
-				printSimpleEnd()
-			} else {
-				printVerbose(pipe, nodes)
+			{
+				nodes := pushEOF(pipe);
+				printNode(pipe, nodes, *simpleFormat, *middleFormat)
+				printEnd(pipe, *simpleFormat, *middleFormat)
 			}
-			break
+			if lfflag {
+				fmt.Printf("\n")
+			}
+			if err == io.EOF {
+				break
+			}
+		} else {
+			{
+				// line には最後の改行を含む
+				nodes := pushText(pipe, line);
+				printNode(pipe, nodes, *simpleFormat, *middleFormat)
+			}
+			if err == io.EOF {
+				nodes := pushEOF(pipe);
+				printNode(pipe, nodes, *simpleFormat, *middleFormat)
+				printEnd(pipe, *simpleFormat, *middleFormat)
+				break
+			}
 		}
 	}
 
+}
+
+func trimLF(line []uint8) ([]uint8, bool) {
+	var flag bool = false
+	if len(line) > 0 && line[len(line) - 1] == '\n' {
+		line = line[:len(line) - 1]
+		flag = true
+	}
+	if len(line) > 0 && line[len(line) - 1] == '\r' {
+		line = line[:len(line) - 1]
+		flag = true
+	}
+	return line, flag
 }
 
 func pushText(pipe *Pipe, text []uint8) []*MorphNode {
@@ -62,6 +90,24 @@ func pushText(pipe *Pipe, text []uint8) []*MorphNode {
 
 func pushEOF(pipe *Pipe) []*MorphNode {
 	return pushText(pipe, nil)
+}
+
+func printNode(pipe *Pipe, nodes []*MorphNode, simpleFormat bool, middleFormat bool) {
+	if simpleFormat {
+		printSimple(pipe, nodes)
+	} else if middleFormat {
+		printMiddle(pipe, nodes)
+	} else {
+		printVerbose(pipe, nodes)
+	}
+}
+
+func printEnd(pipe *Pipe, simpleFormat bool, middleFormat bool) {
+	if simpleFormat {
+		printMiddleEnd()
+	} else if middleFormat {
+		printMiddleEnd()
+	}
 }
 
 func printSimple(pipe *Pipe, nodes []*MorphNode) {
@@ -78,11 +124,33 @@ func printSimpleEnd() {
 	os.Stdout.Write([]uint8{'|'})
 }
 
+func printMiddle(pipe *Pipe, nodes []*MorphNode) {
+	output := make([]uint8, 0, 1024)
+	for i := 0; i < len(nodes); i++ {
+		n := nodes[i]
+		surface := pipe.getSurface(n)
+		posname := pipe.getPosname(n)
+		//meta := pipe.dict.MetaArray[n.metaId]
+		output = append(output, fmt.Sprintf("|%s[%s]", _escapeForOutput(surface), posname)...)
+	}
+	os.Stdout.Write(output)
+}
+
+func printMiddleEnd() {
+	os.Stdout.Write([]uint8{'|'})
+}
+
 func printVerbose(pipe *Pipe, nodes []*MorphNode) {
 	for i := 0; i < len(nodes); i++ {
 		n := nodes[i]
 		surface := pipe.getSurface(n)
-		fmt.Printf("%s\t%s\t%d\t%d\n", _escapeForOutput(n.text), _escapeForOutput(surface), n.leftPosid, n.rightPosid)
+		posname := pipe.getPosname(n)
+		meta := pipe.dict.MetaArray[n.metaId]
+		conjugation := pipe.dict.Texts[meta.ConjugationId]
+		meaning := pipe.dict.Texts[meta.MeaningId]
+		base := pipe.dict.Texts[meta.BaseId]
+		kana := pipe.dict.Texts[meta.KanaId]
+		fmt.Printf("%s\t%s\t%d\t%d\t%d\t%s\t%s\t%s\t%s\t%s\n", _escapeForOutput(n.text), _escapeForOutput(surface), n.leftPosid, n.rightPosid, n.wordCost, posname, conjugation, meaning, base, kana)
 	}
 }
 

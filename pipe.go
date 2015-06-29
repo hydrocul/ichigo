@@ -89,6 +89,14 @@ func (pipe *Pipe) getSurface(node *MorphNode) []uint8 {
 	}
 }
 
+func (pipe *Pipe) getPosname(node *MorphNode) []uint8 {
+	if node.metaId == 0 {
+		return []uint8("未知語")
+	} else {
+		return pipe.dict.Texts[pipe.dict.MetaArray[node.metaId].PosnameId]
+	}
+}
+
 func _makeStartMorphNode() *MorphNode {
 	node := new(MorphNode)
 	node.text = make([]uint8, 0)
@@ -229,7 +237,7 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 			s := ss[i]
 			if s.daIndex == 1 {
 				nodes := []*MorphNode{_makeEndMorphNode(rightBytePos, rightCodePointPos)}
-				_findMinimumPath(pipe.dict, s.prevMorphs, nodes)
+				nodes = _findMinimumPath(pipe.dict, s.prevMorphs, nodes)
 				newS.prevMorphs = append(newS.prevMorphs, nodes...)
 			}
 		}
@@ -241,7 +249,7 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 				// とりあえず1文字クラスタの未知語を確保する
 				unknownNode := _makeOneCharUnknownMorphNode(text[leftPos:rightPos], leftBytePos, leftCodePointPos, rightBytePos, rightCodePointPos)
 				nodes := []*MorphNode{unknownNode}
-				_findMinimumPath(pipe.dict, s.prevMorphs, nodes)
+				nodes = _findMinimumPath(pipe.dict, s.prevMorphs, nodes)
 				newS.prevMorphs = append(newS.prevMorphs, nodes...)
 			}
 			f := true
@@ -254,7 +262,7 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 			if f {
 				ret = append(ret, s)
 				nodes := pipe._getMorphNodes(s, text, rightPos, rightBytePos, rightCodePointPos)
-				_findMinimumPath(pipe.dict, s.prevMorphs, nodes)
+				nodes = _findMinimumPath(pipe.dict, s.prevMorphs, nodes)
 				newS.prevMorphs = append(newS.prevMorphs, nodes...)
 			}
 		}
@@ -266,7 +274,7 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 	if text == nil {
 		fmt.Printf("DEBUG EOS\n")
 	} else {
-		fmt.Printf("DEBUG %s\n", text[leftPos:rightPos])
+		fmt.Printf("DEBUG %s\n", _escapeForOutput(text[leftPos:rightPos]))
 	}
 	for i := 0; i < len(ret); i++ {
 		s := ret[i]
@@ -284,7 +292,7 @@ func _DEBUG_printNodes(s *MorphNode) {
 	if s.prev != nil {
 		_DEBUG_printNodes(s.prev)
 	}
-	fmt.Printf("DEBUG             %s %d(%d)-%d(%d) %d %d %d\n", s.text, s.leftCodePointPos, s.leftBytePos, s.rightCodePointPos, s.rightBytePos, s.leftPosid, s.rightPosid, s.metaId)
+	fmt.Printf("DEBUG             %s %d(%d)-%d(%d) %d %d %d %d (meta:%d)\n", s.text, s.leftCodePointPos, s.leftBytePos, s.rightCodePointPos, s.rightBytePos, s.leftPosid, s.rightPosid, s.wordCost, s.totalCost, s.metaId)
 }
 
 func (pipe *Pipe) _nextByte(s *DAStatus, ch uint8) bool {
@@ -328,25 +336,32 @@ func (pipe *Pipe) _getMorphNodes(s *DAStatus, text []uint8, rightPos int, rightB
 	return ret
 }
 
-func _findMinimumPath(dict *Dictionary, prevs []*MorphNode, nexts []*MorphNode) {
+func _findMinimumPath(dict *Dictionary, prevs []*MorphNode, nexts []*MorphNode) []*MorphNode {
+	ret := make([]*MorphNode, 0, len(nexts))
 	for i := 0; i < len(nexts); i++ {
 		n := nexts[i]
 		leftPosid := n.leftPosid
 		wordCost := int(n.wordCost)
-		var minCost int
-		var minIndex int
+		var minCost int = 0
+		var minIndex int = -1
 		for j := 0; j < len(prevs); j++ {
 			p := prevs[j]
 			connCost := dict.getConnCost(p.rightPosid, leftPosid)
-			c := p.totalCost + connCost + wordCost
-			if c < minCost || j == 0 {
-				minCost = c
-				minIndex = j
+			if connCost <= maxConnCost {
+				c := p.totalCost + connCost + wordCost
+				if c < minCost || minIndex < 0 {
+					minCost = c
+					minIndex = j
+				}
 			}
 		}
-		n.prev = prevs[minIndex]
-		n.totalCost = minCost
+		if minIndex >= 0 {
+			n.prev = prevs[minIndex]
+			n.totalCost = minCost
+			ret = append(ret, n)
+		}
 	}
+	return ret
 }
 
 func _shiftMorphNode(ss []*DAStatus) *MorphNode {
