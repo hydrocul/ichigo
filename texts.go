@@ -20,6 +20,11 @@ func (ta *TextArray) addText(word []uint8) {
 
 func (ta *TextArray) buildDoubleArray() {
 	len := len(ta.Texts)
+	{
+		newTexts := make([][]uint8, len, len)
+		copy(newTexts, ta.Texts)
+		ta.Texts = newTexts
+	}
 	words := make([]uint32, len)
 	for i := 0; i < len; i++ {
 		words[i] = uint32(i)

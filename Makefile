@@ -18,7 +18,10 @@ test1: go/src/hydrocul/ichigo-test1/da.go go/src/hydrocul/ichigo-test1/da_test.g
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test1
 
 test2: go/src/hydrocul/ichigo-test2/da.go go/src/hydrocul/ichigo-test2/dict.go go/src/hydrocul/ichigo-test2/dict_data.go go/src/hydrocul/ichigo-test2/texts.go go/src/hydrocul/ichigo-test2/pipe.go go/src/hydrocul/ichigo-test2/pipe_test.go go/src/hydrocul/ichigo-test2/posid.go
-	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test2 -bench .
+	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test2
+
+bench1: go/src/hydrocul/ichigo-test2/da.go go/src/hydrocul/ichigo-test2/dict.go go/src/hydrocul/ichigo-test2/dict_data.go go/src/hydrocul/ichigo-test2/texts.go go/src/hydrocul/ichigo-test2/pipe.go go/src/hydrocul/ichigo-test2/pipe_test.go go/src/hydrocul/ichigo-test2/posid.go
+	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test2 -run none -bench . -benchtime 10s -benchmem
 
 
 

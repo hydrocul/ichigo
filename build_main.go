@@ -35,7 +35,7 @@ func parseTextsFile(fname string) *TextArray {
 }
 
 func parseDictFile(fname string, ta *TextArray) *Dictionary {
-	dict := makeDictionary(400000, 600000, 600000)
+	dict := makeDictionary(ta, 400000, 600000, 600000)
 
 	fp, err := os.Open(fname)
 	if err != nil {
@@ -47,7 +47,7 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 	for scanner.Scan() {
 		text := scanner.Text()
 		cols := strings.Split(text, "\t")
-		if len(cols) <=1 {
+		if len(cols) <= 1 {
 			continue;
 		}
 		if cols[0][0] == '#' {
@@ -69,23 +69,50 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 		if err != nil {
 			panic(err)
 		}
-		posnameTextId, err := ta.getWordIndex([]uint8(cols[4]))
-		if err != nil {
-			panic(err)
+		if len(cols) == 7 {
+			posnameTextId, err := ta.getWordIndex([]uint8(cols[4]))
+			if err != nil {
+				panic(err)
+			}
+			baseTextId, err := ta.getWordIndex([]uint8(cols[5]))
+			if err != nil {
+				panic(err)
+			}
+			kanaTextId, err := ta.getWordIndex([]uint8(cols[6]))
+			if err != nil {
+				panic(err)
+			}
+			dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
+		} else if len(cols) == 8 {
+			posnameTextId, err := ta.getWordIndex([]uint8(cols[5]))
+			if err != nil {
+				panic(err)
+			}
+			baseTextId, err := ta.getWordIndex([]uint8(cols[6]))
+			if err != nil {
+				panic(err)
+			}
+			kanaTextId, err := ta.getWordIndex([]uint8(cols[7]))
+			if err != nil {
+				panic(err)
+			}
+			dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
+		} else if len(cols) > 8 && len(cols) % 4 == 0 {
+			var ids = make([]uint32, len(cols) - 4)
+			for i := 0; i < len(ids); i++ {
+				var err error
+				ids[i], err = ta.getWordIndex([]uint8(cols[i + 4]))
+				if err != nil {
+					panic(err)
+				}
+			}
+			dict.addMorphForComplex(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), ids)
+		} else {
+			panic("Illegal format: " + text)
 		}
-		baseTextId, err := ta.getWordIndex([]uint8(cols[5]))
-		if err != nil {
-			panic(err)
-		}
-		kanaTextId, err := ta.getWordIndex([]uint8(cols[6]))
-		if err != nil {
-			panic(err)
-		}
-
-		dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
 	}
 
-	dict.build(ta)
+	dict.build()
 
 	return dict
 }

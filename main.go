@@ -146,11 +146,9 @@ func printVerbose(pipe *Pipe, nodes []*MorphNode) {
 		surface := pipe.getSurface(n)
 		posname := pipe.getPosname(n)
 		meta := pipe.dict.MetaArray[n.metaId]
-		conjugation := pipe.dict.Texts[meta.ConjugationId]
-		meaning := pipe.dict.Texts[meta.MeaningId]
 		base := pipe.dict.Texts[meta.BaseId]
 		kana := pipe.dict.Texts[meta.KanaId]
-		fmt.Printf("%s\t%s\t%d\t%d\t%d\t%s\t%s\t%s\t%s\t%s\n", _escapeForOutput(n.text), _escapeForOutput(surface), n.leftPosid, n.rightPosid, n.wordCost, posname, conjugation, meaning, base, kana)
+		fmt.Printf("%s\t%s\t%d\t%d\t%d\t%s\t%s\t%s\n", _escapeForOutput(n.text), _escapeForOutput(surface), n.leftPosid, n.rightPosid, n.wordCost, posname, base, kana)
 	}
 }
 
