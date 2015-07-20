@@ -13,15 +13,7 @@ ichigo-unidic: go/bin/ichigo-unidic
 
 all: test ichigo-ipadic ichigo-unidic
 
-
-################################################################################
-# test scripts
-################################################################################
-
 test: test1 test-ipadic test-unidic bench-ipadic bench-unidic
-
-test1: go/src/hydrocul/ichigo-test1/da.go go/src/hydrocul/ichigo-test1/da_test.go go/src/hydrocul/ichigo-test1/dict.go go/src/hydrocul/ichigo-test1/dict_test.go go/src/hydrocul/ichigo-test1/texts.go go/src/hydrocul/ichigo-test1/texts_test.go
-	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test1
 
 
 
@@ -109,6 +101,9 @@ var/unidic/dict_data.go: var/unidic/mkdir dict_data.go var/unidic/dict.dat dict/
 # compiling go sources - for test1
 ################################################################################
 
+test1: go/src/hydrocul/ichigo-test1/da.go go/src/hydrocul/ichigo-test1/da_test.go go/src/hydrocul/ichigo-test1/dict.go go/src/hydrocul/ichigo-test1/dict_test.go go/src/hydrocul/ichigo-test1/texts.go go/src/hydrocul/ichigo-test1/texts_test.go go/src/hydrocul/ichigo-test1/posid.go
+	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test1
+
 go/src/hydrocul/ichigo-test1/mkdir:
 	mkdir -p go/src/hydrocul/ichigo-test1
 	touch go/src/hydrocul/ichigo-test1/mkdir
@@ -130,6 +125,9 @@ go/src/hydrocul/ichigo-test1/texts.go: texts.go go/src/hydrocul/ichigo-test1/mkd
 
 go/src/hydrocul/ichigo-test1/texts_test.go: texts_test.go go/src/hydrocul/ichigo-test1/mkdir
 	cp texts_test.go go/src/hydrocul/ichigo-test1/texts_test.go
+
+go/src/hydrocul/ichigo-test1/posid.go: posid-test1.go go/src/hydrocul/ichigo-test1/mkdir
+	cp posid-test1.go go/src/hydrocul/ichigo-test1/posid.go
 
 
 
@@ -193,11 +191,11 @@ go/src/hydrocul/ichigo-build-unidic/posid.go: posid-unidic.go go/src/hydrocul/ic
 # compiling go sources - for test-ipadic
 ################################################################################
 
-test-ipadic: go/src/hydrocul/ichigo-test-ipadic/da.go go/src/hydrocul/ichigo-test-ipadic/dict.go go/src/hydrocul/ichigo-test-ipadic/dict_data.go go/src/hydrocul/ichigo-test-ipadic/texts.go go/src/hydrocul/ichigo-test-ipadic/pipe.go go/src/hydrocul/ichigo-test-ipadic/pipe_test.go go/src/hydrocul/ichigo-test-ipadic/posid.go
+test-ipadic: go/src/hydrocul/ichigo-test-ipadic/da.go go/src/hydrocul/ichigo-test-ipadic/dict.go go/src/hydrocul/ichigo-test-ipadic/dict_data.go go/src/hydrocul/ichigo-test-ipadic/texts.go go/src/hydrocul/ichigo-test-ipadic/pipe.go go/src/hydrocul/ichigo-test-ipadic/pipe_test.go go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go go/src/hydrocul/ichigo-test-ipadic/posid.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-ipadic
 
-bench-ipadic: go/src/hydrocul/ichigo-test-ipadic/da.go go/src/hydrocul/ichigo-test-ipadic/dict.go go/src/hydrocul/ichigo-test-ipadic/dict_data.go go/src/hydrocul/ichigo-test-ipadic/texts.go go/src/hydrocul/ichigo-test-ipadic/pipe.go go/src/hydrocul/ichigo-test-ipadic/pipe_test.go go/src/hydrocul/ichigo-test-ipadic/posid.go
-	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-ipadic -run none -bench . -benchtime 10s -benchmem
+bench-ipadic: go/src/hydrocul/ichigo-test-ipadic/da.go go/src/hydrocul/ichigo-test-ipadic/dict.go go/src/hydrocul/ichigo-test-ipadic/dict_data.go go/src/hydrocul/ichigo-test-ipadic/texts.go go/src/hydrocul/ichigo-test-ipadic/pipe.go go/src/hydrocul/ichigo-test-ipadic/pipe_test.go go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go go/src/hydrocul/ichigo-test-ipadic/posid.go
+	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-ipadic -run none -bench . -benchtime 3s -benchmem
 
 go/src/hydrocul/ichigo-test-ipadic/mkdir:
 	mkdir -p go/src/hydrocul/ichigo-test-ipadic
@@ -221,6 +219,9 @@ go/src/hydrocul/ichigo-test-ipadic/pipe.go: pipe.go go/src/hydrocul/ichigo-test-
 go/src/hydrocul/ichigo-test-ipadic/pipe_test.go: pipe_test-ipadic.go go/src/hydrocul/ichigo-test-ipadic/mkdir
 	cp pipe_test-ipadic.go go/src/hydrocul/ichigo-test-ipadic/pipe_test.go
 
+go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go: pipe_test-lib.go go/src/hydrocul/ichigo-test-ipadic/mkdir
+	cp pipe_test-lib.go go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go
+
 go/src/hydrocul/ichigo-test-ipadic/posid.go: posid-ipadic.go go/src/hydrocul/ichigo-test-ipadic/mkdir
 	cp posid-ipadic.go go/src/hydrocul/ichigo-test-ipadic/posid.go
 
@@ -230,11 +231,11 @@ go/src/hydrocul/ichigo-test-ipadic/posid.go: posid-ipadic.go go/src/hydrocul/ich
 # compiling go sources - for test-unidic
 ################################################################################
 
-test-unidic: go/src/hydrocul/ichigo-test-unidic/da.go go/src/hydrocul/ichigo-test-unidic/dict.go go/src/hydrocul/ichigo-test-unidic/dict_data.go go/src/hydrocul/ichigo-test-unidic/texts.go go/src/hydrocul/ichigo-test-unidic/pipe.go go/src/hydrocul/ichigo-test-unidic/pipe_test.go go/src/hydrocul/ichigo-test-unidic/posid.go
+test-unidic: go/src/hydrocul/ichigo-test-unidic/da.go go/src/hydrocul/ichigo-test-unidic/dict.go go/src/hydrocul/ichigo-test-unidic/dict_data.go go/src/hydrocul/ichigo-test-unidic/texts.go go/src/hydrocul/ichigo-test-unidic/pipe.go go/src/hydrocul/ichigo-test-unidic/pipe_test.go go/src/hydrocul/ichigo-test-unidic/pipe_lib.go go/src/hydrocul/ichigo-test-unidic/posid.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-unidic
 
-bench-unidic: go/src/hydrocul/ichigo-test-unidic/da.go go/src/hydrocul/ichigo-test-unidic/dict.go go/src/hydrocul/ichigo-test-unidic/dict_data.go go/src/hydrocul/ichigo-test-unidic/texts.go go/src/hydrocul/ichigo-test-unidic/pipe.go go/src/hydrocul/ichigo-test-unidic/pipe_test.go go/src/hydrocul/ichigo-test-unidic/posid.go
-	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-unidic -run none -bench . -benchtime 10s -benchmem
+bench-unidic: go/src/hydrocul/ichigo-test-unidic/da.go go/src/hydrocul/ichigo-test-unidic/dict.go go/src/hydrocul/ichigo-test-unidic/dict_data.go go/src/hydrocul/ichigo-test-unidic/texts.go go/src/hydrocul/ichigo-test-unidic/pipe.go go/src/hydrocul/ichigo-test-unidic/pipe_test.go go/src/hydrocul/ichigo-test-unidic/pipe_lib.go go/src/hydrocul/ichigo-test-unidic/posid.go
+	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-unidic -run none -bench . -benchtime 3s -benchmem
 
 go/src/hydrocul/ichigo-test-unidic/mkdir:
 	mkdir -p go/src/hydrocul/ichigo-test-unidic
@@ -257,6 +258,9 @@ go/src/hydrocul/ichigo-test-unidic/pipe.go: pipe.go go/src/hydrocul/ichigo-test-
 
 go/src/hydrocul/ichigo-test-unidic/pipe_test.go: pipe_test-unidic.go go/src/hydrocul/ichigo-test-unidic/mkdir
 	cp pipe_test-unidic.go go/src/hydrocul/ichigo-test-unidic/pipe_test.go
+
+go/src/hydrocul/ichigo-test-unidic/pipe_lib.go: pipe_test-lib.go go/src/hydrocul/ichigo-test-unidic/mkdir
+	cp pipe_test-lib.go go/src/hydrocul/ichigo-test-unidic/pipe_lib.go
 
 go/src/hydrocul/ichigo-test-unidic/posid.go: posid-unidic.go go/src/hydrocul/ichigo-test-unidic/mkdir
 	cp posid-unidic.go go/src/hydrocul/ichigo-test-unidic/posid.go
