@@ -390,11 +390,9 @@ func (pipe *Pipe) _getMorphNodes(s *DAStatus, text []uint8, rightPos int, rightB
 		node.leftCodePointPos = s.leftCodePointPos
 		node.rightBytePos = rightBytePos
 		node.rightCodePointPos = rightCodePointPos
-/*
 		if node.metaId >= 0x80000000 {
 			node.positionSeries = s.positionSeries
 		}
-*/
 		ret[i] = node
 	}
 	return ret
