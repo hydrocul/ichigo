@@ -148,7 +148,8 @@ func printVerbose(pipe *Pipe, nodes []*MorphNode) {
 		meta := pipe.dict.MetaArray[n.metaId]
 		base := pipe.dict.Texts[meta.BaseId]
 		kana := pipe.dict.Texts[meta.KanaId]
-		fmt.Printf("%s\t%s\t%d\t%d\t%d\t%s\t%s\t%s\n", _escapeForOutput(n.text), _escapeForOutput(surface), n.leftPosid, n.rightPosid, n.wordCost, posname, base, kana)
+//		fmt.Printf("%s\t%s\t%d\t%d\t%d\t%s\t%s\t%s\n", _escapeForOutput(n.text), _escapeForOutput(surface), n.leftPosid, n.rightPosid, n.wordCost, posname, base, kana)
+		fmt.Printf("%s\t%s\t%s\t%s\t%s\n", _escapeForOutput(n.text), _escapeForOutput(surface), posname, base, kana)
 	}
 }
 
