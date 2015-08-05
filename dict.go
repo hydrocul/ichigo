@@ -90,12 +90,6 @@ func (dict *Dictionary) _resizeComplexMetaArray() {
   dict.ComplexMetaArray = newComplexMetaArray
 }
 
-// 辞書ファイルのサンプル
-// 単独の形態素
-// 苺 1285 1285 100 名詞 苺 いちご
-// 連結形態素
-// きました 10 10 100 き 動詞カ行促音便五段活用連用形語尾 き き まし 助動詞丁寧マス連用形タ接続 ます まし た 助動詞完了タ終止連体形 た た
-
 // TODO surface, leftPosid, rightPosid が同じ複数のmorphは追加できないように
 func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, posnameId uint32, baseId uint32, kanaId uint32) {
 	metaId := dict._appendMetaToArray(posnameId, baseId, kanaId)

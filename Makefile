@@ -101,7 +101,15 @@ var/unidic/dict_data.go: var/unidic/mkdir dict_data.go var/unidic/dict.dat dict/
 # compiling go sources - for test1
 ################################################################################
 
-test1: go/src/hydrocul/ichigo-test1/da.go go/src/hydrocul/ichigo-test1/da_test.go go/src/hydrocul/ichigo-test1/dict.go go/src/hydrocul/ichigo-test1/dict_test.go go/src/hydrocul/ichigo-test1/texts.go go/src/hydrocul/ichigo-test1/texts_test.go go/src/hydrocul/ichigo-test1/posid.go
+test1: \
+	go/src/hydrocul/ichigo-test1/da.go \
+	go/src/hydrocul/ichigo-test1/da_test.go \
+	go/src/hydrocul/ichigo-test1/dict.go \
+	go/src/hydrocul/ichigo-test1/dict_test.go \
+	go/src/hydrocul/ichigo-test1/texts.go \
+	go/src/hydrocul/ichigo-test1/texts_test.go \
+	go/src/hydrocul/ichigo-test1/posid.go \
+	go/src/hydrocul/ichigo-test1/common.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test1
 
 go/src/hydrocul/ichigo-test1/mkdir:
@@ -129,13 +137,22 @@ go/src/hydrocul/ichigo-test1/texts_test.go: texts_test.go go/src/hydrocul/ichigo
 go/src/hydrocul/ichigo-test1/posid.go: posid-test1.go go/src/hydrocul/ichigo-test1/mkdir
 	cp posid-test1.go go/src/hydrocul/ichigo-test1/posid.go
 
+go/src/hydrocul/ichigo-test1/common.go: common.go go/src/hydrocul/ichigo-test1/mkdir
+	cp common.go go/src/hydrocul/ichigo-test1/common.go
+
 
 
 ################################################################################
 # compiling go sources - for building ipadic dictionary
 ################################################################################
 
-go/bin/ichigo-build-ipadic: go/src/hydrocul/ichigo-build-ipadic/main.go go/src/hydrocul/ichigo-build-ipadic/da.go go/src/hydrocul/ichigo-build-ipadic/dict.go go/src/hydrocul/ichigo-build-ipadic/texts.go go/src/hydrocul/ichigo-build-ipadic/posid.go
+go/bin/ichigo-build-ipadic: \
+	go/src/hydrocul/ichigo-build-ipadic/main.go \
+	go/src/hydrocul/ichigo-build-ipadic/da.go \
+	go/src/hydrocul/ichigo-build-ipadic/dict.go \
+	go/src/hydrocul/ichigo-build-ipadic/texts.go \
+	go/src/hydrocul/ichigo-build-ipadic/posid.go \
+	go/src/hydrocul/ichigo-build-ipadic/common.go
 	GOPATH=$(realpath .)/go go install hydrocul/ichigo-build-ipadic
 
 go/src/hydrocul/ichigo-build-ipadic/mkdir:
@@ -157,13 +174,22 @@ go/src/hydrocul/ichigo-build-ipadic/texts.go: texts.go go/src/hydrocul/ichigo-bu
 go/src/hydrocul/ichigo-build-ipadic/posid.go: posid-ipadic.go go/src/hydrocul/ichigo-build-ipadic/mkdir
 	cp posid-ipadic.go go/src/hydrocul/ichigo-build-ipadic/posid.go
 
+go/src/hydrocul/ichigo-build-ipadic/common.go: common.go go/src/hydrocul/ichigo-build-ipadic/mkdir
+	cp common.go go/src/hydrocul/ichigo-build-ipadic/common.go
+
 
 
 ################################################################################
 # compiling go sources - for building unidic dictionary
 ################################################################################
 
-go/bin/ichigo-build-unidic: go/src/hydrocul/ichigo-build-unidic/main.go go/src/hydrocul/ichigo-build-unidic/da.go go/src/hydrocul/ichigo-build-unidic/dict.go go/src/hydrocul/ichigo-build-unidic/texts.go go/src/hydrocul/ichigo-build-unidic/posid.go
+go/bin/ichigo-build-unidic: \
+	go/src/hydrocul/ichigo-build-unidic/main.go \
+	go/src/hydrocul/ichigo-build-unidic/da.go \
+	go/src/hydrocul/ichigo-build-unidic/dict.go \
+	go/src/hydrocul/ichigo-build-unidic/texts.go \
+	go/src/hydrocul/ichigo-build-unidic/posid.go \
+	go/src/hydrocul/ichigo-build-unidic/common.go
 	GOPATH=$(realpath .)/go go install hydrocul/ichigo-build-unidic
 
 go/src/hydrocul/ichigo-build-unidic/mkdir:
@@ -185,16 +211,37 @@ go/src/hydrocul/ichigo-build-unidic/texts.go: texts.go go/src/hydrocul/ichigo-bu
 go/src/hydrocul/ichigo-build-unidic/posid.go: posid-unidic.go go/src/hydrocul/ichigo-build-unidic/mkdir
 	cp posid-unidic.go go/src/hydrocul/ichigo-build-unidic/posid.go
 
+go/src/hydrocul/ichigo-build-unidic/common.go: common.go go/src/hydrocul/ichigo-build-unidic/mkdir
+	cp common.go go/src/hydrocul/ichigo-build-unidic/common.go
+
 
 
 ################################################################################
 # compiling go sources - for test-ipadic
 ################################################################################
 
-test-ipadic: go/src/hydrocul/ichigo-test-ipadic/da.go go/src/hydrocul/ichigo-test-ipadic/dict.go go/src/hydrocul/ichigo-test-ipadic/dict_data.go go/src/hydrocul/ichigo-test-ipadic/texts.go go/src/hydrocul/ichigo-test-ipadic/pipe.go go/src/hydrocul/ichigo-test-ipadic/pipe_test.go go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go go/src/hydrocul/ichigo-test-ipadic/posid.go
+test-ipadic: \
+	go/src/hydrocul/ichigo-test-ipadic/da.go \
+	go/src/hydrocul/ichigo-test-ipadic/dict.go \
+	go/src/hydrocul/ichigo-test-ipadic/dict_data.go \
+	go/src/hydrocul/ichigo-test-ipadic/texts.go \
+	go/src/hydrocul/ichigo-test-ipadic/pipe.go \
+	go/src/hydrocul/ichigo-test-ipadic/pipe_test.go \
+	go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go \
+	go/src/hydrocul/ichigo-test-ipadic/posid.go \
+	go/src/hydrocul/ichigo-test-ipadic/common.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-ipadic
 
-bench-ipadic: go/src/hydrocul/ichigo-test-ipadic/da.go go/src/hydrocul/ichigo-test-ipadic/dict.go go/src/hydrocul/ichigo-test-ipadic/dict_data.go go/src/hydrocul/ichigo-test-ipadic/texts.go go/src/hydrocul/ichigo-test-ipadic/pipe.go go/src/hydrocul/ichigo-test-ipadic/pipe_test.go go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go go/src/hydrocul/ichigo-test-ipadic/posid.go
+bench-ipadic: \
+	go/src/hydrocul/ichigo-test-ipadic/da.go \
+	go/src/hydrocul/ichigo-test-ipadic/dict.go \
+	go/src/hydrocul/ichigo-test-ipadic/dict_data.go \
+	go/src/hydrocul/ichigo-test-ipadic/texts.go \
+	go/src/hydrocul/ichigo-test-ipadic/pipe.go \
+	go/src/hydrocul/ichigo-test-ipadic/pipe_test.go \
+	go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go \
+	go/src/hydrocul/ichigo-test-ipadic/posid.go \
+	go/src/hydrocul/ichigo-test-ipadic/common.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-ipadic -run none -bench . -benchtime 3s -benchmem
 
 go/src/hydrocul/ichigo-test-ipadic/mkdir:
@@ -225,16 +272,37 @@ go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go: pipe_test-lib.go go/src/hydrocul
 go/src/hydrocul/ichigo-test-ipadic/posid.go: posid-ipadic.go go/src/hydrocul/ichigo-test-ipadic/mkdir
 	cp posid-ipadic.go go/src/hydrocul/ichigo-test-ipadic/posid.go
 
+go/src/hydrocul/ichigo-test-ipadic/common.go: common.go go/src/hydrocul/ichigo-test-ipadic/mkdir
+	cp common.go go/src/hydrocul/ichigo-test-ipadic/common.go
+
 
 
 ################################################################################
 # compiling go sources - for test-unidic
 ################################################################################
 
-test-unidic: go/src/hydrocul/ichigo-test-unidic/da.go go/src/hydrocul/ichigo-test-unidic/dict.go go/src/hydrocul/ichigo-test-unidic/dict_data.go go/src/hydrocul/ichigo-test-unidic/texts.go go/src/hydrocul/ichigo-test-unidic/pipe.go go/src/hydrocul/ichigo-test-unidic/pipe_test.go go/src/hydrocul/ichigo-test-unidic/pipe_lib.go go/src/hydrocul/ichigo-test-unidic/posid.go
+test-unidic: \
+	go/src/hydrocul/ichigo-test-unidic/da.go \
+	go/src/hydrocul/ichigo-test-unidic/dict.go \
+	go/src/hydrocul/ichigo-test-unidic/dict_data.go \
+	go/src/hydrocul/ichigo-test-unidic/texts.go \
+	go/src/hydrocul/ichigo-test-unidic/pipe.go \
+	go/src/hydrocul/ichigo-test-unidic/pipe_test.go \
+	go/src/hydrocul/ichigo-test-unidic/pipe_lib.go \
+	go/src/hydrocul/ichigo-test-unidic/posid.go \
+	go/src/hydrocul/ichigo-test-unidic/common.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-unidic
 
-bench-unidic: go/src/hydrocul/ichigo-test-unidic/da.go go/src/hydrocul/ichigo-test-unidic/dict.go go/src/hydrocul/ichigo-test-unidic/dict_data.go go/src/hydrocul/ichigo-test-unidic/texts.go go/src/hydrocul/ichigo-test-unidic/pipe.go go/src/hydrocul/ichigo-test-unidic/pipe_test.go go/src/hydrocul/ichigo-test-unidic/pipe_lib.go go/src/hydrocul/ichigo-test-unidic/posid.go
+bench-unidic: \
+	go/src/hydrocul/ichigo-test-unidic/da.go \
+	go/src/hydrocul/ichigo-test-unidic/dict.go \
+	go/src/hydrocul/ichigo-test-unidic/dict_data.go \
+	go/src/hydrocul/ichigo-test-unidic/texts.go \
+	go/src/hydrocul/ichigo-test-unidic/pipe.go \
+	go/src/hydrocul/ichigo-test-unidic/pipe_test.go \
+	go/src/hydrocul/ichigo-test-unidic/pipe_lib.go \
+	go/src/hydrocul/ichigo-test-unidic/posid.go \
+	go/src/hydrocul/ichigo-test-unidic/common.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-unidic -run none -bench . -benchtime 3s -benchmem
 
 go/src/hydrocul/ichigo-test-unidic/mkdir:
@@ -265,13 +333,24 @@ go/src/hydrocul/ichigo-test-unidic/pipe_lib.go: pipe_test-lib.go go/src/hydrocul
 go/src/hydrocul/ichigo-test-unidic/posid.go: posid-unidic.go go/src/hydrocul/ichigo-test-unidic/mkdir
 	cp posid-unidic.go go/src/hydrocul/ichigo-test-unidic/posid.go
 
+go/src/hydrocul/ichigo-test-unidic/common.go: common.go go/src/hydrocul/ichigo-test-unidic/mkdir
+	cp common.go go/src/hydrocul/ichigo-test-unidic/common.go
+
 
 
 ################################################################################
 # compiling go sources - for main binary ichigo-ipadic
 ################################################################################
 
-go/bin/ichigo-ipadic: go/src/hydrocul/ichigo-ipadic/main.go go/src/hydrocul/ichigo-ipadic/da.go go/src/hydrocul/ichigo-ipadic/dict.go go/src/hydrocul/ichigo-ipadic/dict_data.go go/src/hydrocul/ichigo-ipadic/texts.go go/src/hydrocul/ichigo-ipadic/pipe.go go/src/hydrocul/ichigo-ipadic/posid.go
+go/bin/ichigo-ipadic: \
+	go/src/hydrocul/ichigo-ipadic/main.go \
+	go/src/hydrocul/ichigo-ipadic/da.go \
+	go/src/hydrocul/ichigo-ipadic/dict.go \
+	go/src/hydrocul/ichigo-ipadic/dict_data.go \
+	go/src/hydrocul/ichigo-ipadic/texts.go \
+	go/src/hydrocul/ichigo-ipadic/pipe.go \
+	go/src/hydrocul/ichigo-ipadic/posid.go \
+	go/src/hydrocul/ichigo-ipadic/common.go
 	GOPATH=$(realpath .)/go go install hydrocul/ichigo-ipadic
 
 go/src/hydrocul/ichigo-ipadic/mkdir:
@@ -299,13 +378,24 @@ go/src/hydrocul/ichigo-ipadic/pipe.go: pipe.go go/src/hydrocul/ichigo-ipadic/mkd
 go/src/hydrocul/ichigo-ipadic/posid.go: posid-ipadic.go go/src/hydrocul/ichigo-ipadic/mkdir
 	cp posid-ipadic.go go/src/hydrocul/ichigo-ipadic/posid.go
 
+go/src/hydrocul/ichigo-ipadic/common.go: common.go go/src/hydrocul/ichigo-ipadic/mkdir
+	cp common.go go/src/hydrocul/ichigo-ipadic/common.go
+
 
 
 ################################################################################
 # compiling go sources - for main binary ichigo-unidic
 ################################################################################
 
-go/bin/ichigo-unidic: go/src/hydrocul/ichigo-unidic/main.go go/src/hydrocul/ichigo-unidic/da.go go/src/hydrocul/ichigo-unidic/dict.go go/src/hydrocul/ichigo-unidic/dict_data.go go/src/hydrocul/ichigo-unidic/texts.go go/src/hydrocul/ichigo-unidic/pipe.go go/src/hydrocul/ichigo-unidic/posid.go
+go/bin/ichigo-unidic: \
+	go/src/hydrocul/ichigo-unidic/main.go \
+	go/src/hydrocul/ichigo-unidic/da.go \
+	go/src/hydrocul/ichigo-unidic/dict.go \
+	go/src/hydrocul/ichigo-unidic/dict_data.go \
+	go/src/hydrocul/ichigo-unidic/texts.go \
+	go/src/hydrocul/ichigo-unidic/pipe.go \
+	go/src/hydrocul/ichigo-unidic/posid.go \
+	go/src/hydrocul/ichigo-unidic/common.go
 	GOPATH=$(realpath .)/go go install hydrocul/ichigo-unidic
 
 go/src/hydrocul/ichigo-unidic/mkdir:
@@ -332,6 +422,9 @@ go/src/hydrocul/ichigo-unidic/pipe.go: pipe.go go/src/hydrocul/ichigo-unidic/mkd
 
 go/src/hydrocul/ichigo-unidic/posid.go: posid-unidic.go go/src/hydrocul/ichigo-unidic/mkdir
 	cp posid-unidic.go go/src/hydrocul/ichigo-unidic/posid.go
+
+go/src/hydrocul/ichigo-unidic/common.go: common.go go/src/hydrocul/ichigo-unidic/mkdir
+	cp common.go go/src/hydrocul/ichigo-unidic/common.go
 
 
 
