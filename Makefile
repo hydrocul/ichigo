@@ -18,6 +18,16 @@ test: test1 test-ipadic test-unidic bench-ipadic bench-unidic
 
 
 ################################################################################
+# etc
+################################################################################
+
+var/download/mkdir:
+	mkdir -p var/download
+	touch var/download/mkdir
+
+
+
+################################################################################
 # building ipadic dictionary
 ################################################################################
 
@@ -25,24 +35,21 @@ var/ipadic/mkdir:
 	mkdir -p var/ipadic
 	touch var/ipadic/mkdir
 
-var/ipadic/download.touch: var/ipadic/mkdir
+var/download/ipadic.touch: var/download/mkdir dict/ipadic/download.sh
 	sh dict/ipadic/download.sh
-	touch var/ipadic/download.touch
+	touch var/download/ipadic.touch
 
-var/ipadic/matrix.txt: var/ipadic/mkdir var/ipadic/download.touch dict/mecab-matrix.sh
-	sh dict/mecab-matrix.sh var/ipadic/download > var/ipadic/matrix.txt
+var/ipadic/matrix.txt: var/ipadic/mkdir var/download/ipadic.touch dict/mecab-matrix.sh
+	sh dict/mecab-matrix.sh var/download/ipadic > var/ipadic/matrix.txt
 
-var/ipadic/words-1.txt: var/ipadic/mkdir var/ipadic/download.touch dict/mecab-words-1.sh
-	sh dict/mecab-words-1.sh var/ipadic/download > var/ipadic/words-1.txt
+var/ipadic/normalized.txt: var/ipadic/mkdir var/download/ipadic.touch dict/mecab-normalize.sh
+	sh dict/mecab-normalize.sh var/download/ipadic > var/ipadic/normalized.txt
 
-var/ipadic/words-2.txt: var/ipadic/mkdir var/ipadic/words-1.txt
-	cat var/ipadic/words-1.txt | LC_ALL=C sort > var/ipadic/words-2.txt
+var/ipadic/formatted.txt: var/ipadic/mkdir var/ipadic/normalized.txt dict/ipadic/format.sh
+	cat var/ipadic/normalized.txt | sh dict/ipadic/format.sh > var/ipadic/formatted.txt
 
-var/ipadic/words-3.txt: var/ipadic/mkdir var/ipadic/words-2.txt dict/ipadic/words-3.sh
-	cat var/ipadic/words-2.txt | sh dict/ipadic/words-3.sh > var/ipadic/words-3.txt
-
-var/ipadic/dict.txt: var/ipadic/mkdir var/ipadic/words-3.txt
-	cp var/ipadic/words-3.txt var/ipadic/dict.txt
+var/ipadic/dict.txt: var/ipadic/mkdir var/ipadic/formatted.txt
+	cat var/ipadic/formatted.txt | LC_ALL=C sort > var/ipadic/dict.txt
 
 var/ipadic/texts.txt: var/ipadic/mkdir var/ipadic/dict.txt dict/texts.sh
 	cat var/ipadic/dict.txt | sh dict/texts.sh > var/ipadic/texts.txt
@@ -65,24 +72,21 @@ var/unidic/mkdir:
 	mkdir -p var/unidic
 	touch var/unidic/mkdir
 
-var/unidic/download.touch: var/unidic/mkdir
+var/download/unidic.touch: var/download/mkdir dict/unidic/download.sh
 	sh dict/unidic/download.sh
-	touch var/unidic/download.touch
+	touch var/download/unidic.touch
 
-var/unidic/matrix.txt: var/unidic/mkdir var/unidic/download.touch dict/mecab-matrix.sh
-	sh dict/mecab-matrix.sh var/unidic/download > var/unidic/matrix.txt
+var/unidic/matrix.txt: var/unidic/mkdir var/download/unidic.touch dict/mecab-matrix.sh
+	sh dict/mecab-matrix.sh var/download/unidic > var/unidic/matrix.txt
 
-var/unidic/words-1.txt: var/unidic/mkdir var/unidic/download.touch dict/mecab-words-1.sh
-	sh dict/mecab-words-1.sh var/unidic/download > var/unidic/words-1.txt
+var/unidic/normalized.txt: var/unidic/mkdir var/download/unidic.touch dict/mecab-normalize.sh
+	sh dict/mecab-normalize.sh var/download/unidic > var/unidic/normalized.txt
 
-var/unidic/words-2.txt: var/unidic/mkdir var/unidic/words-1.txt
-	cat var/unidic/words-1.txt | LC_ALL=C sort > var/unidic/words-2.txt
+var/unidic/formatted.txt: var/unidic/mkdir var/unidic/normalized.txt dict/unidic/format.sh
+	cat var/unidic/normalized.txt | sh dict/unidic/format.sh > var/unidic/formatted.txt
 
-var/unidic/words-3.txt: var/unidic/mkdir var/unidic/words-2.txt dict/unidic/words-3.sh
-	cat var/unidic/words-2.txt | sh dict/unidic/words-3.sh > var/unidic/words-3.txt
-
-var/unidic/dict.txt: var/unidic/mkdir var/unidic/words-3.txt
-	cp var/unidic/words-3.txt var/unidic/dict.txt
+var/unidic/dict.txt: var/unidic/mkdir var/unidic/formatted.txt
+	cat var/unidic/formatted.txt | LC_ALL=C sort > var/unidic/dict.txt
 
 var/unidic/texts.txt: var/unidic/mkdir var/unidic/dict.txt dict/texts.sh
 	cat var/unidic/dict.txt | sh dict/texts.sh > var/unidic/texts.txt

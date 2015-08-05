@@ -1,14 +1,14 @@
 # ipadicの辞書をダウンロード
 
-if [ -e ./var/ipadic/download ]; then
-    rm -rvf ./var/ipadic/download
+if [ -e ./var/download/ipadic ]; then
+    rm -rvf ./var/download/ipadic
 fi
-if [ -e ./var/ipadic/download.tmp ]; then
-    rm -rvf ./var/ipadic/download.tmp
+if [ -e ./var/download/ipadic.tmp ]; then
+    rm -rvf ./var/download/ipadic.tmp
 fi
 (
-    mkdir -p ./var/ipadic/download.tmp || exit 1
-    cd ./var/ipadic/download.tmp
+    mkdir -p ./var/download/ipadic.tmp || exit 1
+    cd ./var/download/ipadic.tmp
     wget "http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz" >&2 || exit 1
     tar xvzf mecab-ipadic-2.7.0-20070801.tar.gz >&2 || exit 1
     rm mecab-ipadic-2.7.0-20070801.tar.gz
@@ -17,7 +17,7 @@ fi
         cat mecab-ipadic-2.7.0-20070801/$f | nkf -Ew > $f
     done
     cd ../../..
-    mv var/ipadic/download.tmp var/ipadic/download || exit 1
+    mv var/download/ipadic.tmp var/download/ipadic || exit 1
 ) || exit 1
 
 
