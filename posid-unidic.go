@@ -8,5 +8,5 @@ const unigramUnknownWordCost = 10000
 
 const maxConnCost = 25400
 
-const dictionarySourceFormat = ipadicDictionarySourceFormat
+const dictionarySourceFormat = unidicDictionarySourceFormat
 

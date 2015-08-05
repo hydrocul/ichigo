@@ -51,8 +51,8 @@ var/ipadic/formatted.txt: var/ipadic/mkdir var/ipadic/normalized.txt dict/ipadic
 var/ipadic/dict.txt: var/ipadic/mkdir var/ipadic/formatted.txt
 	cat var/ipadic/formatted.txt | LC_ALL=C sort > var/ipadic/dict.txt
 
-var/ipadic/texts.txt: var/ipadic/mkdir var/ipadic/dict.txt dict/texts.sh
-	cat var/ipadic/dict.txt | sh dict/texts.sh > var/ipadic/texts.txt
+var/ipadic/texts.txt: var/ipadic/mkdir var/ipadic/dict.txt dict/ipadic/texts.sh
+	cat var/ipadic/dict.txt | sh dict/ipadic/texts.sh > var/ipadic/texts.txt
 
 var/ipadic/dict.dat: var/ipadic/mkdir var/ipadic/matrix.txt var/ipadic/dict.txt var/ipadic/texts.txt go/bin/ichigo-build-ipadic
 	go/bin/ichigo-build-ipadic var/ipadic/matrix.txt var/ipadic/dict.txt var/ipadic/texts.txt > var/ipadic/dict.dat.tmp
@@ -88,8 +88,8 @@ var/unidic/formatted.txt: var/unidic/mkdir var/unidic/normalized.txt dict/unidic
 var/unidic/dict.txt: var/unidic/mkdir var/unidic/formatted.txt
 	cat var/unidic/formatted.txt | LC_ALL=C sort > var/unidic/dict.txt
 
-var/unidic/texts.txt: var/unidic/mkdir var/unidic/dict.txt dict/texts.sh
-	cat var/unidic/dict.txt | sh dict/texts.sh > var/unidic/texts.txt
+var/unidic/texts.txt: var/unidic/mkdir var/unidic/dict.txt dict/unidic/texts.sh
+	cat var/unidic/dict.txt | sh dict/unidic/texts.sh > var/unidic/texts.txt
 
 var/unidic/dict.dat: var/unidic/mkdir var/unidic/matrix.txt var/unidic/dict.txt var/unidic/texts.txt go/bin/ichigo-build-unidic
 	go/bin/ichigo-build-unidic var/unidic/matrix.txt var/unidic/dict.txt var/unidic/texts.txt > var/unidic/dict.dat.tmp

@@ -43,10 +43,10 @@ func parseTextsFile(fname string) *TextArray {
 //     表層形 左文脈ID 右文脈ID コスト 表層系 品詞名 原型 ふりがな
 //     きました 10 10 100 き 動詞カ行促音便五段活用連用形語尾 き き まし 助動詞丁寧マス連用形タ接続 ます まし た 助動詞完了タ終止連体形 た た
 // unidic形式 TODO
-//   単独の形態素 (10カラム)
-//     表層形 左文脈ID 右文脈ID コスト 品詞名 原型 ふりがな 発音 代表書字 代表語形
-//   連結形態素 (11カラム + n * 7カラム)
-//     表層形 左文脈ID 右文脈ID コスト 表層系 品詞名 原型 ふりがな 発音 代表書字 代表語形
+//   単独の形態素 (9カラム)
+//     表層形 左文脈ID 右文脈ID コスト 品詞名 原型 ふりがな 発音 代表表記
+//   連結形態素 (10カラム + n * 6カラム)
+//     表層形 左文脈ID 右文脈ID コスト 表層系 品詞名 原型 ふりがな 発音 代表表記
 
 func parseDictFile(fname string, ta *TextArray) *Dictionary {
 	dict := makeDictionary(ta, 400000, 600000, 600000)
@@ -75,24 +75,24 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 		rightPosid := _parseInt(cols[2])
 		wordCost := _parseInt(cols[3])
 		if dictionarySourceFormat == unidicDictionarySourceFormat {
-			if len(cols) == 10 {
+			if len(cols) == 9 {
 				posnameTextId := _parseText(cols[4], ta)
 				baseTextId := _parseText(cols[5], ta)
 				kanaTextId := _parseText(cols[6], ta)
 				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
-			} else if len(cols) == 11 {
+			} else if len(cols) == 10 {
 				posnameTextId := _parseText(cols[5], ta)
 				baseTextId := _parseText(cols[6], ta)
 				kanaTextId := _parseText(cols[7], ta)
 				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
-			} else if len(cols) > 11 && len(cols) % 7 == 4 {
-				s := (len(cols) - 4) / 7;
+			} else if len(cols) > 10 && len(cols) % 6 == 4 {
+				s := (len(cols) - 4) / 6;
 				var ids = make([]uint32, s * 4)
 				for i := 0; i < s; i++ {
-					ids[i * 4 + 0] = _parseText(cols[i * 7 + 4], ta)
-					ids[i * 4 + 1] = _parseText(cols[i * 7 + 5], ta)
-					ids[i * 4 + 2] = _parseText(cols[i * 7 + 6], ta)
-					ids[i * 4 + 3] = _parseText(cols[i * 7 + 7], ta)
+					ids[i * 4 + 0] = _parseText(cols[i * 6 + 4], ta)
+					ids[i * 4 + 1] = _parseText(cols[i * 6 + 5], ta)
+					ids[i * 4 + 2] = _parseText(cols[i * 6 + 6], ta)
+					ids[i * 4 + 3] = _parseText(cols[i * 6 + 7], ta)
 				}
 				dict.addMorphForComplex(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), ids)
 			} else {
