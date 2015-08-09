@@ -1,7 +1,8 @@
 # unidicの辞書をダウンロード
 
 if [ -e ./var/download/unidic ]; then
-    rm -rvf ./var/download/unidic
+    #rm -rvf ./var/download/unidic
+    exit 0
 fi
 if [ -e ./var/download/unidic.tmp ]; then
     rm -rvf ./var/download/unidic.tmp

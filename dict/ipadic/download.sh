@@ -1,7 +1,8 @@
 # ipadicの辞書をダウンロード
 
 if [ -e ./var/download/ipadic ]; then
-    rm -rvf ./var/download/ipadic
+    #rm -rvf ./var/download/ipadic
+    exit 0
 fi
 if [ -e ./var/download/ipadic.tmp ]; then
     rm -rvf ./var/download/ipadic.tmp
