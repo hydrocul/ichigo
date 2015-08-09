@@ -55,7 +55,8 @@ var/ipadic/texts.txt: var/ipadic/mkdir var/ipadic/dict.txt dict/ipadic/texts.sh
 	cat var/ipadic/dict.txt | sh dict/ipadic/texts.sh > var/ipadic/texts.txt
 
 var/ipadic/dict.dat: var/ipadic/mkdir var/ipadic/matrix.txt var/ipadic/dict.txt var/ipadic/texts.txt go/bin/ichigo-build-ipadic
-	go/bin/ichigo-build-ipadic var/ipadic/matrix.txt var/ipadic/dict.txt var/ipadic/texts.txt > var/ipadic/dict.dat.tmp
+	#go/bin/ichigo-build-ipadic var/ipadic/matrix.txt var/ipadic/dict.txt var/ipadic/texts.txt > var/ipadic/dict.dat.tmp
+	go/bin/ichigo-build-ipadic var/ipadic/matrix.txt var/ipadic/dict.txt var/ipadic/texts.txt | gzip - > var/ipadic/dict.dat.tmp
 	mv var/ipadic/dict.dat.tmp var/ipadic/dict.dat
 
 var/ipadic/dict_data.go: var/ipadic/mkdir dict_data.go var/ipadic/dict.dat dict/to-go-source.sh
@@ -92,7 +93,8 @@ var/unidic/texts.txt: var/unidic/mkdir var/unidic/dict.txt dict/unidic/texts.sh
 	cat var/unidic/dict.txt | sh dict/unidic/texts.sh > var/unidic/texts.txt
 
 var/unidic/dict.dat: var/unidic/mkdir var/unidic/matrix.txt var/unidic/dict.txt var/unidic/texts.txt go/bin/ichigo-build-unidic
-	go/bin/ichigo-build-unidic var/unidic/matrix.txt var/unidic/dict.txt var/unidic/texts.txt > var/unidic/dict.dat.tmp
+	#go/bin/ichigo-build-unidic var/unidic/matrix.txt var/unidic/dict.txt var/unidic/texts.txt > var/unidic/dict.dat.tmp
+	go/bin/ichigo-build-unidic var/unidic/matrix.txt var/unidic/dict.txt var/unidic/texts.txt | gzip - > var/unidic/dict.dat.tmp
 	mv var/unidic/dict.dat.tmp var/unidic/dict.dat
 
 var/unidic/dict_data.go: var/unidic/mkdir dict_data.go var/unidic/dict.dat dict/to-go-source.sh

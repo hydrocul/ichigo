@@ -1,7 +1,7 @@
 package main
 
 import "bufio"
-import "compress/gzip"
+//import "compress/gzip"
 //import "fmt"
 import "encoding/gob"
 //import "io"
@@ -182,10 +182,11 @@ func parseMatrixFile(fname string, dict *Dictionary) {
 
 func outputDict(dict *Dictionary) {
 
-	writer := gzip.NewWriter(os.Stdout)
-	defer writer.Close()
+	//writer := gzip.NewWriter(os.Stdout)
+	//defer writer.Close()
 
-	enc := gob.NewEncoder(writer)
+//	enc := gob.NewEncoder(writer)
+	enc := gob.NewEncoder(os.Stdout)
 	if e := enc.Encode(dict); e != nil {
 		panic(e)
 	}
