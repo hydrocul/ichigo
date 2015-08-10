@@ -53,7 +53,7 @@ func makeDictionary(ta *TextArray, surfaceArraySize int, morphArraySize int, met
 	dict.MorphArray[0] = Morph{0, 0, 0, 0}
 	dict.MetaArray[0] = Meta{0, 0, 0}
 
-	dict.ConnTable = make([]int16, posidCount * posidCount)
+	dict.ConnTable = make([]int16, int(posidCount) * int(posidCount))
 
 	return dict
 }
@@ -192,10 +192,12 @@ func (dict *Dictionary) _slim() {
 }
 
 func (dict *Dictionary) setConnCost(rightPosid uint16, leftPosid uint16, value int16) {
-	dict.ConnTable[rightPosid * posidCount + leftPosid] = value
+	i := int(rightPosid) * posidCount + int(leftPosid)
+	dict.ConnTable[i] = value
 }
 
 func (dict *Dictionary) getConnCost(rightPosid uint16, leftPosid uint16) int {
-	return int(dict.ConnTable[rightPosid * posidCount + leftPosid])
+	i := int(rightPosid) * posidCount + int(leftPosid)
+	return int(dict.ConnTable[i])
 }
 
