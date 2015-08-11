@@ -79,20 +79,26 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 				posnameTextId := _parseText(cols[4], ta)
 				baseTextId := _parseText(cols[5], ta)
 				kanaTextId := _parseText(cols[6], ta)
-				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
+				pronTextId := _parseText(cols[7], ta)
+				lemmTextId := _parseText(cols[8], ta)
+				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
 			} else if len(cols) == 10 {
 				posnameTextId := _parseText(cols[5], ta)
 				baseTextId := _parseText(cols[6], ta)
 				kanaTextId := _parseText(cols[7], ta)
-				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
+				pronTextId := _parseText(cols[8], ta)
+				lemmTextId := _parseText(cols[9], ta)
+				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
 			} else if len(cols) > 10 && len(cols) % 6 == 4 {
 				s := (len(cols) - 4) / 6;
-				var ids = make([]uint32, s * 4)
+				var ids = make([]uint32, s * 6)
 				for i := 0; i < s; i++ {
-					ids[i * 4 + 0] = _parseText(cols[i * 6 + 4], ta)
-					ids[i * 4 + 1] = _parseText(cols[i * 6 + 5], ta)
-					ids[i * 4 + 2] = _parseText(cols[i * 6 + 6], ta)
-					ids[i * 4 + 3] = _parseText(cols[i * 6 + 7], ta)
+					ids[i * 6 + 0] = _parseText(cols[i * 6 + 4], ta)
+					ids[i * 6 + 1] = _parseText(cols[i * 6 + 5], ta)
+					ids[i * 6 + 2] = _parseText(cols[i * 6 + 6], ta)
+					ids[i * 6 + 3] = _parseText(cols[i * 6 + 7], ta)
+					ids[i * 6 + 2] = _parseText(cols[i * 6 + 8], ta)
+					ids[i * 6 + 3] = _parseText(cols[i * 6 + 9], ta)
 				}
 				dict.addMorphForComplex(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), ids)
 			} else {
@@ -103,20 +109,22 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 				posnameTextId := _parseText(cols[4], ta)
 				baseTextId := _parseText(cols[5], ta)
 				kanaTextId := _parseText(cols[6], ta)
-				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
+				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId, 0, 0)
 			} else if len(cols) == 8 {
 				posnameTextId := _parseText(cols[5], ta)
 				baseTextId := _parseText(cols[6], ta)
 				kanaTextId := _parseText(cols[7], ta)
-				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId)
+				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), posnameTextId, baseTextId, kanaTextId, 0, 0)
 			} else if len(cols) > 8 && len(cols) % 4 == 0 {
 				s := (len(cols) - 4) / 4;
-				var ids = make([]uint32, s * 4)
+				var ids = make([]uint32, s * 6)
 				for i := 0; i < s; i++ {
-					ids[i * 4 + 0] = _parseText(cols[i * 4 + 4], ta)
-					ids[i * 4 + 1] = _parseText(cols[i * 4 + 5], ta)
-					ids[i * 4 + 2] = _parseText(cols[i * 4 + 6], ta)
-					ids[i * 4 + 3] = _parseText(cols[i * 4 + 7], ta)
+					ids[i * 6 + 0] = _parseText(cols[i * 4 + 4], ta)
+					ids[i * 6 + 1] = _parseText(cols[i * 4 + 5], ta)
+					ids[i * 6 + 2] = _parseText(cols[i * 4 + 6], ta)
+					ids[i * 6 + 3] = _parseText(cols[i * 4 + 7], ta)
+					ids[i * 6 + 4] = 0
+					ids[i * 6 + 5] = 0
 				}
 				dict.addMorphForComplex(surfaceTextId, uint16(leftPosid), uint16(rightPosid), uint16(wordCost), ids)
 			} else {

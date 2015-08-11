@@ -33,6 +33,8 @@ type Meta struct {
 	PosnameId uint32
 	BaseId uint32
 	KanaId uint32
+	PronId uint32
+	LemmaId uint32
 }
 
 type ComplexMeta struct {
@@ -51,7 +53,7 @@ func makeDictionary(ta *TextArray, surfaceArraySize int, morphArraySize int, met
 	dict.SurfaceArray[0] = Surface{0, make([]uint32, 1, 1000)}
 	dict.SurfaceArray[0].Morphs[0] = 0
 	dict.MorphArray[0] = Morph{0, 0, 0, 0}
-	dict.MetaArray[0] = Meta{0, 0, 0}
+	dict.MetaArray[0] = Meta{0, 0, 0, 0, 0}
 
 	dict.ConnTable = make([]int16, int(posidCount) * int(posidCount))
 
@@ -91,13 +93,13 @@ func (dict *Dictionary) _resizeComplexMetaArray() {
 }
 
 // TODO surface, leftPosid, rightPosid が同じ複数のmorphは追加できないように
-func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, posnameId uint32, baseId uint32, kanaId uint32) {
-	metaId := dict._appendMetaToArray(posnameId, baseId, kanaId)
+func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) {
+	metaId := dict._appendMetaToArray(posnameId, baseId, kanaId, pronId, lemmaId)
 	morphId := dict._appendMorphToArray(leftPosid, rightPosid, wordCost, metaId)
 	dict._addMorphToSurface(surfaceId, morphId)
 }
 
-// idsの数は4の倍数
+// idsの数は6の倍数
 func (dict *Dictionary) addMorphForComplex(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, ids []uint32) {
 	var r uint8 = 0
 	var rightOffsets []uint8 = make([]uint8, 0, 32)
@@ -108,13 +110,15 @@ func (dict *Dictionary) addMorphForComplex(surfaceId uint32, leftPosid uint16, r
 		posnameId := ids[1]
 		baseId := ids[2]
 		kanaId := ids[3]
-		metaId := dict._appendMetaToArray(posnameId, baseId, kanaId)
+		pronId := ids[4]
+		lemmId := ids[5]
+		metaId := dict._appendMetaToArray(posnameId, baseId, kanaId, pronId, lemmId)
 		s := dict.Texts[surfaceId]
 		r += uint8(len(s))
 		rightOffsets = append(rightOffsets, r)
 		metaIds = append(metaIds, metaId)
 		//surface = append(surface, s...)
-		ids = ids[4:]
+		ids = ids[6:]
 	}
 
 	if cap(dict.ComplexMetaArray) == len(dict.ComplexMetaArray) {
@@ -128,12 +132,12 @@ func (dict *Dictionary) addMorphForComplex(surfaceId uint32, leftPosid uint16, r
 	dict._addMorphToSurface(surfaceId, morphId)
 }
 
-func (dict *Dictionary) _appendMetaToArray(posnameId uint32, baseId uint32, kanaId uint32) uint32 {
+func (dict *Dictionary) _appendMetaToArray(posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) uint32 {
 	if cap(dict.MetaArray) == len(dict.MetaArray) {
 		dict._resizeMetaArray()
 	}
 	metaId := uint32(len(dict.MetaArray))
-	dict.MetaArray = append(dict.MetaArray, Meta{posnameId, baseId, kanaId})
+	dict.MetaArray = append(dict.MetaArray, Meta{posnameId, baseId, kanaId, pronId, lemmaId})
 	return metaId;
 }
 
