@@ -25,7 +25,7 @@ type Surface struct {
 type Morph struct {
 	LeftPosid uint16
 	RightPosid uint16
-	WordCost uint16
+	WordCost int16
 	MetaId uint32 // more than 0x80000000 means ComplexMeta
 }
 
@@ -93,14 +93,14 @@ func (dict *Dictionary) _resizeComplexMetaArray() {
 }
 
 // TODO surface, leftPosid, rightPosid が同じ複数のmorphは追加できないように
-func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) {
+func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) {
 	metaId := dict._appendMetaToArray(posnameId, baseId, kanaId, pronId, lemmaId)
 	morphId := dict._appendMorphToArray(leftPosid, rightPosid, wordCost, metaId)
 	dict._addMorphToSurface(surfaceId, morphId)
 }
 
 // idsの数は6の倍数
-func (dict *Dictionary) addMorphForComplex(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost uint16, ids []uint32) {
+func (dict *Dictionary) addMorphForComplex(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, ids []uint32) {
 	var r uint8 = 0
 	var rightOffsets []uint8 = make([]uint8, 0, 32)
 	var metaIds []uint32 = make([]uint32, 0, 32)
@@ -141,7 +141,7 @@ func (dict *Dictionary) _appendMetaToArray(posnameId uint32, baseId uint32, kana
 	return metaId;
 }
 
-func (dict *Dictionary) _appendMorphToArray(leftPosid uint16, rightPosid uint16, wordCost uint16, metaId uint32) uint32 {
+func (dict *Dictionary) _appendMorphToArray(leftPosid uint16, rightPosid uint16, wordCost int16, metaId uint32) uint32 {
 	if cap(dict.MorphArray) == len(dict.MorphArray) {
 		dict._resizeMorphArray()
 	}

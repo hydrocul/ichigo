@@ -32,7 +32,7 @@ type MorphNode struct {
 	surfaceText []uint8  // 連結形態素の場合のみ有効
 	leftPosid uint16     // 連結形態素の中間は0xFFFF
 	rightPosid uint16    // 連結形態素の中間は0xFFFF
-	wordCost uint16      // 連結形態素の先頭以外は0
+	wordCost int16       // 連結形態素の先頭以外は0
 	metaId uint32        // 未知語の場合は0
 	leftBytePos int
 	leftCodePointPos int
@@ -490,7 +490,7 @@ func _expandMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
 		var surfaceText = surface[surfaceStart : surfaceEnd]
 		var leftPosid uint16 = 0xFFFF
 		var rightPosid uint16 = 0xFFFF
-		var wordCost uint16 = 0
+		var wordCost int16 = 0
 		if i == 0 {
 			leftPosid = morph.leftPosid
 			wordCost = morph.wordCost
