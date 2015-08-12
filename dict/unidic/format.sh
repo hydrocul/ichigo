@@ -14,7 +14,26 @@ perl -Mutf8 -MEncode -nle '
     @F = split(/\t/, $_);
     $posname = "$F[4]/$F[5]/$F[6]/$F[7]";
     $posname = $1 while $posname =~ /^(.+)\/\*$/;
-    print "$F[0]\t$F[1]\t$F[2]\t$F[3]\t$posname\t$F[14]\t\t$F[13]\t$F[11]";
+    $posname = "$posname:$F[8]" if ($F[8] ne "*");
+    $posname = "$posname:$F[9]" if ($F[9] ne "*");
+    $posname =~ s/-/\//g;
+    $pron = $F[13];
+
+    $pron = decode_utf8($pron);
+    $lenPron = length($pron);
+    $hiragana = "";
+    for ($i = 0; $i < $lenPron; $i++) {
+      $c = substr($pron, $i, 1);
+      $ch = ord($c);
+      if ($ch >= 0x30A1 && $ch <= 0x30F6) {
+        $hiragana = $hiragana . chr($ch - 0x60);
+      } else {
+        $hiragana = $hiragana . $c;
+      }
+    }
+    $pron = encode_utf8($hiragana);
+
+    print "$F[0]\t$F[1]\t$F[2]\t$F[3]\t$posname\t$F[14]\t\t$pron\t$F[11]";
 '
 
 
