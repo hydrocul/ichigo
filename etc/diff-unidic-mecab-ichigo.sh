@@ -32,7 +32,7 @@ cat $tmpdir/mecab.raw | perl -Mutf8 -MEncode -nle '
         $posname = $F[4];
         $posname = "$posname:$F[5]" if ($F[5] ne "");
         $posname = "$posname:$F[6]" if ($F[6] ne "");
-        $posname =~ s/-/\//g;
+        $posname =~ s/-/,/g;
         $lemma = $F[3];
         $pron = $F[1];
     }

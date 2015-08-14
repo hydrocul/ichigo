@@ -40,8 +40,8 @@ perl -Mutf8 -MEncode -nle '
     }
     $pron = encode_utf8($hiragana);
 
-    $posname = "$F[4]/$F[5]/$F[6]/$F[7]";
-    $posname = $1 while $posname =~ /^(.+)\/\*$/;
+    $posname = "$F[4],$F[5],$F[6],$F[7]";
+    $posname = $1 while $posname =~ /^(.+),\*$/;
     $posname = "$posname:$F[8]" if ($F[8] ne "*");
     $posname = "$posname:$F[9]" if ($F[9] ne "*");
     print "$F[0]\t$F[1]\t$F[2]\t$F[3]\t$posname\t$F[10]\t$kana\t$pron\t";

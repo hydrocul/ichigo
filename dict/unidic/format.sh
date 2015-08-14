@@ -12,11 +12,11 @@
 
 perl -Mutf8 -MEncode -nle '
     @F = split(/\t/, $_);
-    $posname = "$F[4]/$F[5]/$F[6]/$F[7]";
-    $posname = $1 while $posname =~ /^(.+)\/\*$/;
+    $posname = "$F[4],$F[5],$F[6],$F[7]";
+    $posname = $1 while $posname =~ /^(.+),\*$/;
     $posname = "$posname:$F[8]" if ($F[8] ne "*");
     $posname = "$posname:$F[9]" if ($F[9] ne "*");
-    $posname =~ s/-/\//g;
+    $posname =~ s/-/,/g;
     $pron = $F[13];
 
     $pron = decode_utf8($pron);

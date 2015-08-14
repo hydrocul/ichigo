@@ -30,8 +30,8 @@ cat $tmpdir/mecab.raw | perl -Mutf8 -MEncode -nle '
         $kana = "";
         $pron = "";
     } else {
-        $posname = "$G[0]/$G[1]/$G[2]/$G[3]";
-        $posname = $1 while $posname =~ /^(.+)\/\*$/;
+        $posname = "$G[0],$G[1],$G[2],$G[3]";
+        $posname = $1 while $posname =~ /^(.+),\*$/;
         $posname = "$posname:$G[4]" if ($G[4] ne "*");
         $posname = "$posname:$G[5]" if ($G[5] ne "*");
         $base = $G[6];
