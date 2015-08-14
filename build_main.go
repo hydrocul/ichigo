@@ -97,8 +97,8 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 					ids[i * 6 + 1] = _parseText(cols[i * 6 + 5], ta)
 					ids[i * 6 + 2] = _parseText(cols[i * 6 + 6], ta)
 					ids[i * 6 + 3] = _parseText(cols[i * 6 + 7], ta)
-					ids[i * 6 + 2] = _parseText(cols[i * 6 + 8], ta)
-					ids[i * 6 + 3] = _parseText(cols[i * 6 + 9], ta)
+					ids[i * 6 + 4] = _parseText(cols[i * 6 + 8], ta)
+					ids[i * 6 + 5] = _parseText(cols[i * 6 + 9], ta)
 				}
 				dict.addMorphForComplex(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
 			} else {
