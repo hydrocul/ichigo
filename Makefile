@@ -248,7 +248,7 @@ bench-ipadic: \
 	go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go \
 	go/src/hydrocul/ichigo-test-ipadic/posid.go \
 	go/src/hydrocul/ichigo-test-ipadic/common.go
-	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-ipadic -run none -bench . -benchtime 3s -benchmem
+	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-ipadic -run none -bench . -benchtime 3s -benchmem | tee var/bench-ipadic.txt
 
 go/src/hydrocul/ichigo-test-ipadic/mkdir:
 	mkdir -p go/src/hydrocul/ichigo-test-ipadic
@@ -309,7 +309,7 @@ bench-unidic: \
 	go/src/hydrocul/ichigo-test-unidic/pipe_lib.go \
 	go/src/hydrocul/ichigo-test-unidic/posid.go \
 	go/src/hydrocul/ichigo-test-unidic/common.go
-	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-unidic -run none -bench . -benchtime 3s -benchmem
+	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test-unidic -run none -bench . -benchtime 3s -benchmem | tee var/bench-unidic.txt
 
 go/src/hydrocul/ichigo-test-unidic/mkdir:
 	mkdir -p go/src/hydrocul/ichigo-test-unidic
