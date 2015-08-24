@@ -1,28 +1,21 @@
 package main
 
-import "bytes"
-//import "compress/gzip"
+import "bufio"
+import "os"
 import "encoding/gob"
-//import "io"
 
 func loadDictionary() *Dictionary {
-	var bindata =
-		[]uint8("COMPRESSED-DICT-DATA") // DO NOT EDIT THIS LINE
-/*
-	reader, err := gzip.NewReader(bytes.NewBuffer(bindata))
+	dictPath := os.Getenv("ICHIGO_DICTIONARY_PATH")
+	if len(dictPath) <= 0 {
+		panic("Not set environment variable 'ICHIGO_DICTIONARY_PATH'")
+	}
+	fp, err := os.Open(dictPath)
 	if err != nil {
 		panic(err)
 	}
-	var buf bytes.Buffer
-	{
-		_, err := io.Copy(&buf, reader)
-		if err != nil {
-			panic(err)
-		}
-	}
-	dec := gob.NewDecoder(bytes.NewBuffer(buf.Bytes()))
-*/
-	dec := gob.NewDecoder(bytes.NewBuffer(bindata))
+	defer fp.Close()
+	reader := bufio.NewReaderSize(fp, 4096)
+	dec := gob.NewDecoder(reader)
 	var dict Dictionary
 	{
 		err := dec.Decode(&dict)
