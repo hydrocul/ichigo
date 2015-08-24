@@ -69,15 +69,18 @@ func (da *DoubleArray) getInfo(daIndex uint32) uint32 {
 }
 
 // infoがない場合は0を返す
-func (da *DoubleArray) getWordInfo(word []uint8, offset int, daIndex uint32) uint32 {
-	if offset == len(word) {
-		return da.getInfo(daIndex)
+func (da *DoubleArray) getWordInfo(word []uint8, offset int) uint32 {
+	var daIndex uint32 = 1
+	for {
+		if offset == len(word) {
+			return da.getInfo(daIndex)
+		}
+		daIndex = da.nextByte(daIndex, word[offset])
+		if daIndex == 0 {
+			return 0
+		}
+		offset = offset + 1
 	}
-	nextDaIndex := da.nextByte(daIndex, word[offset])
-	if nextDaIndex == 0 {
-		return 0
-	}
-	return da.getWordInfo(word, offset + 1, nextDaIndex)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

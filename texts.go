@@ -34,7 +34,7 @@ func (ta *TextArray) buildDoubleArray() {
 }
 
 func (ta *TextArray) getWordIndex(word []uint8) (uint32, error) {
-	index := ta.Da.getWordInfo(word, 0, 1)
+	index := ta.Da.getWordInfo(word, 0)
 	if index == 0 && len(word) > 0 {
 		return 0, fmt.Errorf("Text not found: \"%s\"", word)
 	}
