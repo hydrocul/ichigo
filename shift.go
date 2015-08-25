@@ -70,7 +70,7 @@ func _expandMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
 	}
 	complex := dict.ComplexMetaArray[morph.metaId - 0x80000000]
 	size := len(complex.RightOffset)
-	surface := dict.Texts[morph.surfaceTextId]
+	surface := dict.getText(morph.surfaceTextId)
 	ret := make([]*MorphNode, size)
 	for i := 0; i < size; i++ {
 		var surfaceStart int = 0

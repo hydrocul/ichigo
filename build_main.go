@@ -10,28 +10,35 @@ import "strconv"
 import "strings"
 
 func main() {
-	ta := parseTextsFile(os.Args[3])
-	dict := parseDictFile(os.Args[2], ta)
+	dict := makeDictionary(400000, 600000, 600000)
+	parseTextsFile(os.Args[3], dict)
+	parseDictFile(os.Args[2], dict)
 	parseMatrixFile(os.Args[1], dict)
 	outputDict(dict)
 }
 
-func parseTextsFile(fname string) *TextArray {
-	ta := makeTextArray(600000)
-
+func parseTextsFile(fname string, dict *Dictionary) {
 	fp, err := os.Open(fname)
 	if err != nil {
 		panic(err)
 	}
 	defer fp.Close()
 
+	words := make([][]uint8, 0, 200000)
 	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
-		text := scanner.Text()
-		ta.addText([]uint8(text))
+		if cap(words) == len(words) {
+			size := len(words)
+			newSize := size * 2
+			newWords := make([][]uint8, size, newSize)
+			copy(newWords[:size], words)
+			words = newWords
+		}
+		text := []uint8(scanner.Text())
+		words = append(words, text)
 	}
-	ta.buildDoubleArray()
-	return ta
+
+	dict.addTexts(words)
 }
 
 // 辞書ファイルのフォーマット
@@ -48,9 +55,7 @@ func parseTextsFile(fname string) *TextArray {
 //   連結形態素 (10カラム + n * 6カラム)
 //     表層形 左文脈ID 右文脈ID コスト 表層系 品詞名 原型 ふりがな 発音 代表表記
 
-func parseDictFile(fname string, ta *TextArray) *Dictionary {
-	dict := makeDictionary(ta, 400000, 600000, 600000)
-
+func parseDictFile(fname string, dict *Dictionary) {
 	fp, err := os.Open(fname)
 	if err != nil {
 		panic(err)
@@ -70,35 +75,35 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 		if cols[0][0] == '#' {
 			continue;
 		}
-		surfaceTextId := _parseText(cols[0], ta)
+		surfaceTextId := _parseText(cols[0], dict)
 		leftPosid := _parseInt(cols[1])
 		rightPosid := _parseInt(cols[2])
 		wordCost := _parseInt(cols[3])
 		if dictionarySourceFormat == unidicDictionarySourceFormat {
 			if len(cols) == 9 {
-				posnameTextId := _parseText(cols[4], ta)
-				baseTextId := _parseText(cols[5], ta)
-				kanaTextId := _parseText(cols[6], ta)
-				pronTextId := _parseText(cols[7], ta)
-				lemmTextId := _parseText(cols[8], ta)
+				posnameTextId := _parseText(cols[4], dict)
+				baseTextId := _parseText(cols[5], dict)
+				kanaTextId := _parseText(cols[6], dict)
+				pronTextId := _parseText(cols[7], dict)
+				lemmTextId := _parseText(cols[8], dict)
 				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
 			} else if len(cols) == 10 {
-				posnameTextId := _parseText(cols[5], ta)
-				baseTextId := _parseText(cols[6], ta)
-				kanaTextId := _parseText(cols[7], ta)
-				pronTextId := _parseText(cols[8], ta)
-				lemmTextId := _parseText(cols[9], ta)
+				posnameTextId := _parseText(cols[5], dict)
+				baseTextId := _parseText(cols[6], dict)
+				kanaTextId := _parseText(cols[7], dict)
+				pronTextId := _parseText(cols[8], dict)
+				lemmTextId := _parseText(cols[9], dict)
 				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
 			} else if len(cols) > 10 && len(cols) % 6 == 4 {
 				s := (len(cols) - 4) / 6;
 				var ids = make([]uint32, s * 6)
 				for i := 0; i < s; i++ {
-					ids[i * 6 + 0] = _parseText(cols[i * 6 + 4], ta)
-					ids[i * 6 + 1] = _parseText(cols[i * 6 + 5], ta)
-					ids[i * 6 + 2] = _parseText(cols[i * 6 + 6], ta)
-					ids[i * 6 + 3] = _parseText(cols[i * 6 + 7], ta)
-					ids[i * 6 + 4] = _parseText(cols[i * 6 + 8], ta)
-					ids[i * 6 + 5] = _parseText(cols[i * 6 + 9], ta)
+					ids[i * 6 + 0] = _parseText(cols[i * 6 + 4], dict)
+					ids[i * 6 + 1] = _parseText(cols[i * 6 + 5], dict)
+					ids[i * 6 + 2] = _parseText(cols[i * 6 + 6], dict)
+					ids[i * 6 + 3] = _parseText(cols[i * 6 + 7], dict)
+					ids[i * 6 + 4] = _parseText(cols[i * 6 + 8], dict)
+					ids[i * 6 + 5] = _parseText(cols[i * 6 + 9], dict)
 				}
 				dict.addMorphForComplex(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
 			} else {
@@ -106,23 +111,23 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 			}
 		} else {
 			if len(cols) == 7 {
-				posnameTextId := _parseText(cols[4], ta)
-				baseTextId := _parseText(cols[5], ta)
-				kanaTextId := _parseText(cols[6], ta)
+				posnameTextId := _parseText(cols[4], dict)
+				baseTextId := _parseText(cols[5], dict)
+				kanaTextId := _parseText(cols[6], dict)
 				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, 0, 0)
 			} else if len(cols) == 8 {
-				posnameTextId := _parseText(cols[5], ta)
-				baseTextId := _parseText(cols[6], ta)
-				kanaTextId := _parseText(cols[7], ta)
+				posnameTextId := _parseText(cols[5], dict)
+				baseTextId := _parseText(cols[6], dict)
+				kanaTextId := _parseText(cols[7], dict)
 				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, 0, 0)
 			} else if len(cols) > 8 && len(cols) % 4 == 0 {
 				s := (len(cols) - 4) / 4;
 				var ids = make([]uint32, s * 6)
 				for i := 0; i < s; i++ {
-					ids[i * 6 + 0] = _parseText(cols[i * 4 + 4], ta)
-					ids[i * 6 + 1] = _parseText(cols[i * 4 + 5], ta)
-					ids[i * 6 + 2] = _parseText(cols[i * 4 + 6], ta)
-					ids[i * 6 + 3] = _parseText(cols[i * 4 + 7], ta)
+					ids[i * 6 + 0] = _parseText(cols[i * 4 + 4], dict)
+					ids[i * 6 + 1] = _parseText(cols[i * 4 + 5], dict)
+					ids[i * 6 + 2] = _parseText(cols[i * 4 + 6], dict)
+					ids[i * 6 + 3] = _parseText(cols[i * 4 + 7], dict)
 					ids[i * 6 + 4] = 0
 					ids[i * 6 + 5] = 0
 				}
@@ -132,10 +137,6 @@ func parseDictFile(fname string, ta *TextArray) *Dictionary {
 			}
 		}
 	}
-
-	dict.build()
-
-	return dict
 }
 
 func _parseInt(str string) int {
@@ -146,8 +147,8 @@ func _parseInt(str string) int {
 	return ret
 }
 
-func _parseText(str string, ta *TextArray) uint32 {
-	ret, err := ta.getWordIndex([]uint8(str))
+func _parseText(str string, dict *Dictionary) uint32 {
+	ret, err := dict.getTextId([]uint8(str))
 	if err != nil {
 		panic(err)
 	}
@@ -200,6 +201,5 @@ func outputDict(dict *Dictionary) {
 	}
 
 }
-
 
 

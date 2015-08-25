@@ -2,8 +2,6 @@ package main
 
 //import "fmt"
 
-const charIndexCount = 152
-
 type DoubleArray struct {
    Base []uint32
    Check []uint32
@@ -45,41 +43,75 @@ func (da *DoubleArray) _putWordsSub(words []uint32, texts [][]uint8, infos []uin
   return baseSearchOffset
 }
 
+func (da *DoubleArray) setInfo(daIndex uint32, info uint32) {
+  baseOffset := da.Base[daIndex]
+  da.Base[baseOffset + charIndexCount] = info
+}
+
 // その文字に進めない場合は0を返す
 func (da *DoubleArray) nextByte(daIndex uint32, ch uint8) uint32 {
   baseOffset := da.Base[daIndex]
-  index := _charByteToIndex(ch)
-  newBaseOffset := baseOffset + uint32(index)
-  if da.Check[newBaseOffset] == daIndex {
-    return newBaseOffset
+  index := charByteToIndex(ch)
+  newDaIndex := baseOffset + uint32(index)
+  if da.Check[newDaIndex] == daIndex {
+    return newDaIndex
   } else {
     return 0
   }
+}
+
+func (da *DoubleArray) prevByte(daIndex uint32) (uint32, uint8) {
+	prevDaIndex := da.Check[daIndex]
+	prevBaseOffset := da.Base[prevDaIndex]
+	chIndex := uint8(daIndex - prevBaseOffset)
+	return prevDaIndex, chIndex
 }
 
 // infoがない場合は0を返す
 func (da *DoubleArray) getInfo(daIndex uint32) uint32 {
   baseOffset := da.Base[daIndex]
-  newBaseOffset := baseOffset + charIndexCount
-  if da.Check[newBaseOffset] == daIndex {
-    return da.Base[newBaseOffset]
+  newDaIndex := baseOffset + charIndexCount
+  if da.Check[newDaIndex] == daIndex {
+    return da.Base[newDaIndex]
   } else {
     return 0
   }
 }
 
 // infoがない場合は0を返す
-func (da *DoubleArray) getWordInfo(word []uint8, offset int) uint32 {
+func (da *DoubleArray) getWordDaIndex(word []uint8) uint32 {
 	var daIndex uint32 = 1
+	var offset = 0
 	for {
 		if offset == len(word) {
-			return da.getInfo(daIndex)
+			return daIndex
 		}
 		daIndex = da.nextByte(daIndex, word[offset])
 		if daIndex == 0 {
 			return 0
 		}
 		offset = offset + 1
+	}
+}
+
+func (da *DoubleArray) getWordInfo(word []uint8) uint32 {
+	daIndex := da.getWordDaIndex(word)
+	if daIndex == 0 {
+		return 0
+	}
+	return da.getInfo(daIndex)
+}
+
+func (da *DoubleArray) getText(daIndex uint32) []uint8 {
+	const maxTextLength = 256
+	var buf [maxTextLength]uint8
+	var bufOffset int = maxTextLength
+	for {
+		if daIndex == 1 {
+			return indexToCharByte(buf[bufOffset:])
+		}
+		bufOffset = bufOffset - 1
+		daIndex, buf[bufOffset] = da.prevByte(daIndex)
 	}
 }
 
@@ -96,25 +128,6 @@ func (da *DoubleArray) _resizeDoubleArray() {
   da.Check = newCheck
 }
 
-func _charByteToIndex(b uint8) uint8 {
-  if b <= 0x20 {
-    return 0x01
-  } else if b < 0x7F {
-    return b - 0x1F // 0x02 - 0x5F
-  } else if b == 0x7F {
-    return 0x01
-  } else if b < 0xC0 {
-    return b - 0x7F // 0x01 - 0x40
-  } else if b < 0xC2 {
-    return 0x01
-  } else if b < 0xF7 {
-    return b - 0x62 // 0x60 - 0x97 (151)
-  } else {
-    return 0x01
-  }
-  // 1 - 151
-}
-
 func _getFirstChars(words []uint32, texts [][]uint8, offset uint8) []uint8 {
   ret := make([]uint8, charIndexCount)
   l := len(words)
@@ -122,7 +135,7 @@ func _getFirstChars(words []uint32, texts [][]uint8, offset uint8) []uint8 {
   var nextCh uint8 = 1
   for i := 0; i < l; i++ {
     if offset2 < len(texts[words[i]]) {
-      w := _charByteToIndex(texts[words[i]][offset])
+      w := charByteToIndex(texts[words[i]][offset])
       if w >= nextCh {
         ret[w] = 1
         nextCh = w + 1
@@ -141,7 +154,7 @@ func _getNextWords(words []uint32, texts [][]uint8, infos []uint32, offset uint8
       break
     }
     if offset < uint8(len(texts[words[i]])) {
-      w := _charByteToIndex(texts[words[i]][offset])
+      w := charByteToIndex(texts[words[i]][offset])
       if w == charIndex {
         start = i
         i++
@@ -157,7 +170,7 @@ func _getNextWords(words []uint32, texts [][]uint8, infos []uint32, offset uint8
       break
     }
     if offset < uint8(len(texts[words[i]])) {
-      w := _charByteToIndex(texts[words[i]][offset])
+      w := charByteToIndex(texts[words[i]][offset])
       if w == charIndex {
         i++
         continue

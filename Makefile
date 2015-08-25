@@ -114,10 +114,9 @@ var/unidic/boot.pl: var/unidic/mkdir boot.pl var/unidic/dict.dat var/unidic/main
 test1: \
 	go/src/hydrocul/ichigo-test1/da.go \
 	go/src/hydrocul/ichigo-test1/da_test.go \
+	go/src/hydrocul/ichigo-test1/utf8.go \
 	go/src/hydrocul/ichigo-test1/dict.go \
 	go/src/hydrocul/ichigo-test1/dict_test.go \
-	go/src/hydrocul/ichigo-test1/texts.go \
-	go/src/hydrocul/ichigo-test1/texts_test.go \
 	go/src/hydrocul/ichigo-test1/posid.go \
 	go/src/hydrocul/ichigo-test1/common.go
 	GOPATH=$(realpath .)/go go test hydrocul/ichigo-test1
@@ -132,17 +131,14 @@ go/src/hydrocul/ichigo-test1/da.go: da.go go/src/hydrocul/ichigo-test1/mkdir
 go/src/hydrocul/ichigo-test1/da_test.go: da_test.go go/src/hydrocul/ichigo-test1/mkdir
 	cp da_test.go go/src/hydrocul/ichigo-test1/da_test.go
 
+go/src/hydrocul/ichigo-test1/utf8.go: utf8.go go/src/hydrocul/ichigo-test1/mkdir
+	cp utf8.go go/src/hydrocul/ichigo-test1/utf8.go
+
 go/src/hydrocul/ichigo-test1/dict.go: dict.go go/src/hydrocul/ichigo-test1/mkdir
 	cp dict.go go/src/hydrocul/ichigo-test1/dict.go
 
 go/src/hydrocul/ichigo-test1/dict_test.go: dict_test.go go/src/hydrocul/ichigo-test1/mkdir
 	cp dict_test.go go/src/hydrocul/ichigo-test1/dict_test.go
-
-go/src/hydrocul/ichigo-test1/texts.go: texts.go go/src/hydrocul/ichigo-test1/mkdir
-	cp texts.go go/src/hydrocul/ichigo-test1/texts.go
-
-go/src/hydrocul/ichigo-test1/texts_test.go: texts_test.go go/src/hydrocul/ichigo-test1/mkdir
-	cp texts_test.go go/src/hydrocul/ichigo-test1/texts_test.go
 
 go/src/hydrocul/ichigo-test1/posid.go: posid-test1.go go/src/hydrocul/ichigo-test1/mkdir
 	cp posid-test1.go go/src/hydrocul/ichigo-test1/posid.go
@@ -159,8 +155,8 @@ go/src/hydrocul/ichigo-test1/common.go: common.go go/src/hydrocul/ichigo-test1/m
 go/bin/ichigo-build-ipadic: \
 	go/src/hydrocul/ichigo-build-ipadic/main.go \
 	go/src/hydrocul/ichigo-build-ipadic/da.go \
+	go/src/hydrocul/ichigo-build-ipadic/utf8.go \
 	go/src/hydrocul/ichigo-build-ipadic/dict.go \
-	go/src/hydrocul/ichigo-build-ipadic/texts.go \
 	go/src/hydrocul/ichigo-build-ipadic/posid.go \
 	go/src/hydrocul/ichigo-build-ipadic/common.go
 	GOPATH=$(realpath .)/go go install hydrocul/ichigo-build-ipadic
@@ -175,11 +171,11 @@ go/src/hydrocul/ichigo-build-ipadic/main.go: build_main.go go/src/hydrocul/ichig
 go/src/hydrocul/ichigo-build-ipadic/da.go: da.go go/src/hydrocul/ichigo-build-ipadic/mkdir
 	cp da.go go/src/hydrocul/ichigo-build-ipadic/da.go
 
+go/src/hydrocul/ichigo-build-ipadic/utf8.go: utf8.go go/src/hydrocul/ichigo-build-ipadic/mkdir
+	cp utf8.go go/src/hydrocul/ichigo-build-ipadic/utf8.go
+
 go/src/hydrocul/ichigo-build-ipadic/dict.go: dict.go go/src/hydrocul/ichigo-build-ipadic/mkdir
 	cp dict.go go/src/hydrocul/ichigo-build-ipadic/dict.go
-
-go/src/hydrocul/ichigo-build-ipadic/texts.go: texts.go go/src/hydrocul/ichigo-build-ipadic/mkdir
-	cp texts.go go/src/hydrocul/ichigo-build-ipadic/texts.go
 
 go/src/hydrocul/ichigo-build-ipadic/posid.go: posid-ipadic.go go/src/hydrocul/ichigo-build-ipadic/mkdir
 	cp posid-ipadic.go go/src/hydrocul/ichigo-build-ipadic/posid.go
@@ -196,8 +192,8 @@ go/src/hydrocul/ichigo-build-ipadic/common.go: common.go go/src/hydrocul/ichigo-
 go/bin/ichigo-build-unidic: \
 	go/src/hydrocul/ichigo-build-unidic/main.go \
 	go/src/hydrocul/ichigo-build-unidic/da.go \
+	go/src/hydrocul/ichigo-build-unidic/utf8.go \
 	go/src/hydrocul/ichigo-build-unidic/dict.go \
-	go/src/hydrocul/ichigo-build-unidic/texts.go \
 	go/src/hydrocul/ichigo-build-unidic/posid.go \
 	go/src/hydrocul/ichigo-build-unidic/common.go
 	GOPATH=$(realpath .)/go go install hydrocul/ichigo-build-unidic
@@ -212,11 +208,11 @@ go/src/hydrocul/ichigo-build-unidic/main.go: build_main.go go/src/hydrocul/ichig
 go/src/hydrocul/ichigo-build-unidic/da.go: da.go go/src/hydrocul/ichigo-build-unidic/mkdir
 	cp da.go go/src/hydrocul/ichigo-build-unidic/da.go
 
+go/src/hydrocul/ichigo-build-unidic/utf8.go: utf8.go go/src/hydrocul/ichigo-build-unidic/mkdir
+	cp utf8.go go/src/hydrocul/ichigo-build-unidic/utf8.go
+
 go/src/hydrocul/ichigo-build-unidic/dict.go: dict.go go/src/hydrocul/ichigo-build-unidic/mkdir
 	cp dict.go go/src/hydrocul/ichigo-build-unidic/dict.go
-
-go/src/hydrocul/ichigo-build-unidic/texts.go: texts.go go/src/hydrocul/ichigo-build-unidic/mkdir
-	cp texts.go go/src/hydrocul/ichigo-build-unidic/texts.go
 
 go/src/hydrocul/ichigo-build-unidic/posid.go: posid-unidic.go go/src/hydrocul/ichigo-build-unidic/mkdir
 	cp posid-unidic.go go/src/hydrocul/ichigo-build-unidic/posid.go
@@ -232,9 +228,9 @@ go/src/hydrocul/ichigo-build-unidic/common.go: common.go go/src/hydrocul/ichigo-
 
 test-ipadic: \
 	go/src/hydrocul/ichigo-test-ipadic/da.go \
+	go/src/hydrocul/ichigo-test-ipadic/utf8.go \
 	go/src/hydrocul/ichigo-test-ipadic/dict.go \
 	go/src/hydrocul/ichigo-test-ipadic/dict_data.go \
-	go/src/hydrocul/ichigo-test-ipadic/texts.go \
 	go/src/hydrocul/ichigo-test-ipadic/pipe.go \
 	go/src/hydrocul/ichigo-test-ipadic/pipe_test.go \
 	go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go \
@@ -246,9 +242,9 @@ test-ipadic: \
 
 bench-ipadic: \
 	go/src/hydrocul/ichigo-test-ipadic/da.go \
+	go/src/hydrocul/ichigo-test-ipadic/utf8.go \
 	go/src/hydrocul/ichigo-test-ipadic/dict.go \
 	go/src/hydrocul/ichigo-test-ipadic/dict_data.go \
-	go/src/hydrocul/ichigo-test-ipadic/texts.go \
 	go/src/hydrocul/ichigo-test-ipadic/pipe.go \
 	go/src/hydrocul/ichigo-test-ipadic/pipe_test.go \
 	go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go \
@@ -265,14 +261,14 @@ go/src/hydrocul/ichigo-test-ipadic/mkdir:
 go/src/hydrocul/ichigo-test-ipadic/da.go: da.go go/src/hydrocul/ichigo-test-ipadic/mkdir
 	cp da.go go/src/hydrocul/ichigo-test-ipadic/da.go
 
+go/src/hydrocul/ichigo-test-ipadic/utf8.go: utf8.go go/src/hydrocul/ichigo-test-ipadic/mkdir
+	cp utf8.go go/src/hydrocul/ichigo-test-ipadic/utf8.go
+
 go/src/hydrocul/ichigo-test-ipadic/dict.go: dict.go go/src/hydrocul/ichigo-test-ipadic/mkdir
 	cp dict.go go/src/hydrocul/ichigo-test-ipadic/dict.go
 
 go/src/hydrocul/ichigo-test-ipadic/dict_data.go: dict_data.go go/src/hydrocul/ichigo-test-ipadic/mkdir
 	cp dict_data.go go/src/hydrocul/ichigo-test-ipadic/dict_data.go
-
-go/src/hydrocul/ichigo-test-ipadic/texts.go: texts.go go/src/hydrocul/ichigo-test-ipadic/mkdir
-	cp texts.go go/src/hydrocul/ichigo-test-ipadic/texts.go
 
 go/src/hydrocul/ichigo-test-ipadic/pipe.go: pipe.go go/src/hydrocul/ichigo-test-ipadic/mkdir
 	cp pipe.go go/src/hydrocul/ichigo-test-ipadic/pipe.go
@@ -300,9 +296,9 @@ go/src/hydrocul/ichigo-test-ipadic/common.go: common.go go/src/hydrocul/ichigo-t
 
 test-unidic: \
 	go/src/hydrocul/ichigo-test-unidic/da.go \
+	go/src/hydrocul/ichigo-test-unidic/utf8.go \
 	go/src/hydrocul/ichigo-test-unidic/dict.go \
 	go/src/hydrocul/ichigo-test-unidic/dict_data.go \
-	go/src/hydrocul/ichigo-test-unidic/texts.go \
 	go/src/hydrocul/ichigo-test-unidic/pipe.go \
 	go/src/hydrocul/ichigo-test-unidic/pipe_test.go \
 	go/src/hydrocul/ichigo-test-unidic/pipe_lib.go \
@@ -314,9 +310,9 @@ test-unidic: \
 
 bench-unidic: \
 	go/src/hydrocul/ichigo-test-unidic/da.go \
+	go/src/hydrocul/ichigo-test-unidic/utf8.go \
 	go/src/hydrocul/ichigo-test-unidic/dict.go \
 	go/src/hydrocul/ichigo-test-unidic/dict_data.go \
-	go/src/hydrocul/ichigo-test-unidic/texts.go \
 	go/src/hydrocul/ichigo-test-unidic/pipe.go \
 	go/src/hydrocul/ichigo-test-unidic/pipe_test.go \
 	go/src/hydrocul/ichigo-test-unidic/pipe_lib.go \
@@ -333,14 +329,14 @@ go/src/hydrocul/ichigo-test-unidic/mkdir:
 go/src/hydrocul/ichigo-test-unidic/da.go: da.go go/src/hydrocul/ichigo-test-unidic/mkdir
 	cp da.go go/src/hydrocul/ichigo-test-unidic/da.go
 
+go/src/hydrocul/ichigo-test-unidic/utf8.go: utf8.go go/src/hydrocul/ichigo-test-unidic/mkdir
+	cp utf8.go go/src/hydrocul/ichigo-test-unidic/utf8.go
+
 go/src/hydrocul/ichigo-test-unidic/dict.go: dict.go go/src/hydrocul/ichigo-test-unidic/mkdir
 	cp dict.go go/src/hydrocul/ichigo-test-unidic/dict.go
 
 go/src/hydrocul/ichigo-test-unidic/dict_data.go: dict_data.go go/src/hydrocul/ichigo-test-unidic/mkdir
 	cp dict_data.go go/src/hydrocul/ichigo-test-unidic/dict_data.go
-
-go/src/hydrocul/ichigo-test-unidic/texts.go: texts.go go/src/hydrocul/ichigo-test-unidic/mkdir
-	cp texts.go go/src/hydrocul/ichigo-test-unidic/texts.go
 
 go/src/hydrocul/ichigo-test-unidic/pipe.go: pipe.go go/src/hydrocul/ichigo-test-unidic/mkdir
 	cp pipe.go go/src/hydrocul/ichigo-test-unidic/pipe.go
@@ -369,9 +365,9 @@ go/src/hydrocul/ichigo-test-unidic/common.go: common.go go/src/hydrocul/ichigo-t
 go/bin/ichigo-ipadic: \
 	go/src/hydrocul/ichigo-ipadic/main.go \
 	go/src/hydrocul/ichigo-ipadic/da.go \
+	go/src/hydrocul/ichigo-ipadic/utf8.go \
 	go/src/hydrocul/ichigo-ipadic/dict.go \
 	go/src/hydrocul/ichigo-ipadic/dict_data.go \
-	go/src/hydrocul/ichigo-ipadic/texts.go \
 	go/src/hydrocul/ichigo-ipadic/pipe.go \
 	go/src/hydrocul/ichigo-ipadic/shift.go \
 	go/src/hydrocul/ichigo-ipadic/posid.go \
@@ -388,14 +384,14 @@ go/src/hydrocul/ichigo-ipadic/main.go: main.go go/src/hydrocul/ichigo-ipadic/mkd
 go/src/hydrocul/ichigo-ipadic/da.go: da.go go/src/hydrocul/ichigo-ipadic/mkdir
 	cp da.go go/src/hydrocul/ichigo-ipadic/da.go
 
+go/src/hydrocul/ichigo-ipadic/utf8.go: utf8.go go/src/hydrocul/ichigo-ipadic/mkdir
+	cp utf8.go go/src/hydrocul/ichigo-ipadic/utf8.go
+
 go/src/hydrocul/ichigo-ipadic/dict.go: dict.go go/src/hydrocul/ichigo-ipadic/mkdir
 	cp dict.go go/src/hydrocul/ichigo-ipadic/dict.go
 
 go/src/hydrocul/ichigo-ipadic/dict_data.go: dict_data.go go/src/hydrocul/ichigo-ipadic/mkdir
 	cp dict_data.go go/src/hydrocul/ichigo-ipadic/dict_data.go
-
-go/src/hydrocul/ichigo-ipadic/texts.go: texts.go go/src/hydrocul/ichigo-ipadic/mkdir
-	cp texts.go go/src/hydrocul/ichigo-ipadic/texts.go
 
 go/src/hydrocul/ichigo-ipadic/pipe.go: pipe.go go/src/hydrocul/ichigo-ipadic/mkdir
 	cp pipe.go go/src/hydrocul/ichigo-ipadic/pipe.go
@@ -418,9 +414,9 @@ go/src/hydrocul/ichigo-ipadic/common.go: common.go go/src/hydrocul/ichigo-ipadic
 go/bin/ichigo-unidic: \
 	go/src/hydrocul/ichigo-unidic/main.go \
 	go/src/hydrocul/ichigo-unidic/da.go \
+	go/src/hydrocul/ichigo-unidic/utf8.go \
 	go/src/hydrocul/ichigo-unidic/dict.go \
 	go/src/hydrocul/ichigo-unidic/dict_data.go \
-	go/src/hydrocul/ichigo-unidic/texts.go \
 	go/src/hydrocul/ichigo-unidic/pipe.go \
 	go/src/hydrocul/ichigo-unidic/shift.go \
 	go/src/hydrocul/ichigo-unidic/posid.go \
@@ -437,14 +433,14 @@ go/src/hydrocul/ichigo-unidic/main.go: main.go go/src/hydrocul/ichigo-unidic/mkd
 go/src/hydrocul/ichigo-unidic/da.go: da.go go/src/hydrocul/ichigo-unidic/mkdir
 	cp da.go go/src/hydrocul/ichigo-unidic/da.go
 
+go/src/hydrocul/ichigo-unidic/utf8.go: utf8.go go/src/hydrocul/ichigo-unidic/mkdir
+	cp utf8.go go/src/hydrocul/ichigo-unidic/utf8.go
+
 go/src/hydrocul/ichigo-unidic/dict.go: dict.go go/src/hydrocul/ichigo-unidic/mkdir
 	cp dict.go go/src/hydrocul/ichigo-unidic/dict.go
 
 go/src/hydrocul/ichigo-unidic/dict_data.go: dict_data.go go/src/hydrocul/ichigo-unidic/mkdir
 	cp dict_data.go go/src/hydrocul/ichigo-unidic/dict_data.go
-
-go/src/hydrocul/ichigo-unidic/texts.go: texts.go go/src/hydrocul/ichigo-unidic/mkdir
-	cp texts.go go/src/hydrocul/ichigo-unidic/texts.go
 
 go/src/hydrocul/ichigo-unidic/pipe.go: pipe.go go/src/hydrocul/ichigo-unidic/mkdir
 	cp pipe.go go/src/hydrocul/ichigo-unidic/pipe.go

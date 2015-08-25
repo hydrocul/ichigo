@@ -79,7 +79,7 @@ func (pipe *Pipe) parseText(text []uint8) {
 func (pipe *Pipe) getSurface(node *MorphNode) []uint8 {
 	t := node.surfaceTextId
 	if t != 0 {
-		return pipe.dict.Texts[t]
+		return pipe.dict.getText(t)
 	} else if node.surfaceText != nil {
 		return node.surfaceText
 	} else {
@@ -91,7 +91,7 @@ func (pipe *Pipe) getPosname(node *MorphNode) []uint8 {
 	if node.metaId == 0 {
 		return []uint8("未知語")
 	} else {
-		return pipe.dict.Texts[pipe.dict.MetaArray[node.metaId].PosnameId]
+		return pipe.dict.getText(pipe.dict.MetaArray[node.metaId].PosnameId)
 	}
 }
 
@@ -137,7 +137,7 @@ func (pipe *Pipe) _parseTextSub(text []uint8, isEos bool) {
 		if rightPos == len(text) {
 			break
 		}
-		codePointLen := _utf8CodePointLength(text, rightPos)
+		codePointLen := utf8CodePointLength(text, rightPos)
 		if codePointLen == 0 {
 			text[rightPos] = 0x20
 			codePointLen = 1
@@ -159,21 +159,6 @@ func (pipe *Pipe) _parseTextSub(text []uint8, isEos bool) {
 		pipe._pushCodePoint(nil, 0, 0, leftBytePos, leftCodePointPos, rightBytePos, rightCodePointPos, prevResult)
 	} else {
 		pipe._resetRestText(text, leftPos, leftBytePos, leftCodePointPos)
-	}
-}
-
-func _utf8CodePointLength(text []uint8, pos int) int {
-	b := text[pos]
-	if b & 0x80 == 0x00 {
-		return 1
-	} else if b & 0xE0 == 0xC0 {
-		return 2
-	} else if b & 0xF0 == 0xE0 {
-		return 3
-	} else if b & 0xF8 == 0xF0 {
-		return 4
-	} else {
-		return 0
 	}
 }
 
@@ -312,29 +297,31 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 	if len(newS.prevMorphs) > 0 {
 		ret = append(ret, newS)
 	}
-/*
+//	_DEBUG_printDAStatuses(ret, text, leftPos, rightPos)
+	return ret
+}
+
+func _DEBUG_printDAStatuses(ss []*DAStatus, text []uint8, leftPos int, rightPos int) {
 	if text == nil {
 		fmt.Printf("DEBUG EOS\n")
 	} else {
 		fmt.Printf("DEBUG %s\n", _escapeForOutput(text[leftPos:rightPos]))
 	}
-	for i := 0; i < len(ret); i++ {
-		s := ret[i]
-		fmt.Printf("DEBUG     %d %d(%d)\n", s.daIndex, s.leftCodePointPos, s.leftBytePos)
+	for i := 0; i < len(ss); i++ {
+		s := ss[i]
+		fmt.Printf("DEBUG     daIndex:%d, leftCodePointPos:%d(bytePos:%d)\n", s.daIndex, s.leftCodePointPos, s.leftBytePos)
 		for j := 0; j < len(s.prevMorphs); j++ {
     	fmt.Printf("DEBUG        %d\n", j)
 			_DEBUG_printNodes(s.prevMorphs[j])
 		}
 	}
-// */
-	return ret
 }
 
 func _DEBUG_printNodes(s *MorphNode) {
 	if s.prev != nil {
 		_DEBUG_printNodes(s.prev)
 	}
-	fmt.Printf("DEBUG             %s %d(%d)-%d(%d) %d %d %d %d (meta:%d)\n", s.text, s.leftCodePointPos, s.leftBytePos, s.rightCodePointPos, s.rightBytePos, s.leftPosid, s.rightPosid, s.wordCost, s.totalCost, s.metaId)
+	fmt.Printf("DEBUG             node: %s pos:%d(%d)-%d(%d) posid:%d-%d wordCost:%d totalCost:%d metaId:%d\n", s.text, s.leftCodePointPos, s.leftBytePos, s.rightCodePointPos, s.rightBytePos, s.leftPosid, s.rightPosid, s.wordCost, s.totalCost, s.metaId)
 }
 
 func (pipe *Pipe) _nextByte(s *DAStatus, ch uint8) bool {
@@ -348,10 +335,10 @@ func (pipe *Pipe) _nextByte(s *DAStatus, ch uint8) bool {
 
 func (pipe *Pipe) _getMorphNodes(s *DAStatus, text []uint8, rightPos int, rightBytePos int, rightCodePointPos int) []*MorphNode {
 	surfaceId := pipe.dict.Da.getInfo(s.daIndex)
-	if surfaceId == 0 {
+	if surfaceId < 2 {
 		return make([]*MorphNode, 0)
 	}
-	surfaceTextId := pipe.dict.SurfaceArray[surfaceId].TextId
+	surfaceTextId := pipe.dict.SurfaceArray[surfaceId].TextDaIndex
 	morphIds := pipe.dict.SurfaceArray[surfaceId].Morphs
 	ret := make([]*MorphNode, len(morphIds))
 	for i := 0; i < len(morphIds); i++ {

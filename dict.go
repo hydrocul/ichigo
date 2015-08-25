@@ -1,10 +1,11 @@
 package main
 
-type Dictionary struct {
-	Texts [][]uint8
-	// 0は空文字列
+import "fmt"
 
+type Dictionary struct {
 	SurfaceArray []Surface
+	// 0はダミー
+	// 1はダミー
 
 	MorphArray []Morph
 	// 0はterminator
@@ -18,7 +19,7 @@ type Dictionary struct {
 }
 
 type Surface struct {
-	TextId uint32
+	TextDaIndex uint32
 	Morphs []uint32
 }
 
@@ -42,16 +43,17 @@ type ComplexMeta struct {
 	MetaId []uint32
 }
 
-func makeDictionary(ta *TextArray, surfaceArraySize int, morphArraySize int, metaArraySize int) *Dictionary {
+func makeDictionary(surfaceArraySize int, morphArraySize int, metaArraySize int) *Dictionary {
 	dict := new(Dictionary)
-	dict.Texts = ta.Texts
-	dict.SurfaceArray = make([]Surface, 1, surfaceArraySize)
+	dict.SurfaceArray = make([]Surface, 2, surfaceArraySize)
 	dict.MorphArray = make([]Morph, 1, morphArraySize)
 	dict.MetaArray = make([]Meta, 1, metaArraySize)
 	dict.Da = makeDoubleArray(1000)
 
-	dict.SurfaceArray[0] = Surface{0, make([]uint32, 1, 1000)}
-	dict.SurfaceArray[0].Morphs[0] = 0
+	for i := 0; i < 2; i++ {
+		dict.SurfaceArray[i] = Surface{0, make([]uint32, 1, 1)}
+		dict.SurfaceArray[i].Morphs[0] = 0
+	}
 	dict.MorphArray[0] = Morph{0, 0, 0, 0}
 	dict.MetaArray[0] = Meta{0, 0, 0, 0, 0}
 
@@ -92,28 +94,53 @@ func (dict *Dictionary) _resizeComplexMetaArray() {
   dict.ComplexMetaArray = newComplexMetaArray
 }
 
+func (dict *Dictionary) addTexts(words [][]uint8) {
+	index1 := make([]uint32, len(words))
+	index2 := make([]uint32, len(words))
+	for i := 0; i < len(words); i++ {
+		index1[i] = uint32(i)
+		index2[i] = 1
+	}
+	dict.Da.putWords(index1, words, index2)
+}
+
+func (dict *Dictionary) getTextId(word []uint8) (uint32, error) {
+	id := dict.Da.getWordDaIndex(word)
+	if id == 0 {
+		return 0, fmt.Errorf("Text not found: \"%s\"", word)
+	}
+	return id, nil
+}
+
+func (dict *Dictionary) getText(id uint32) []uint8 {
+	if id == 0 {
+		return []uint8("")
+	}
+	return dict.Da.getText(id)
+}
+
 // TODO surface, leftPosid, rightPosid が同じ複数のmorphは追加できないように
-func (dict *Dictionary) addMorph(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) {
+func (dict *Dictionary) addMorph(surfaceTextId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) {
 	metaId := dict._appendMetaToArray(posnameId, baseId, kanaId, pronId, lemmaId)
 	morphId := dict._appendMorphToArray(leftPosid, rightPosid, wordCost, metaId)
-	dict._addMorphToSurface(surfaceId, morphId)
+	dict._addMorphToSurface(surfaceTextId, morphId)
 }
 
 // idsの数は6の倍数
-func (dict *Dictionary) addMorphForComplex(surfaceId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, ids []uint32) {
+func (dict *Dictionary) addMorphForComplex(surfaceTextId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, ids []uint32) {
 	var r uint8 = 0
 	var rightOffsets []uint8 = make([]uint8, 0, 32)
 	var metaIds []uint32 = make([]uint32, 0, 32)
 	//var surface []uint8 = make([]uint8, 0, 128)
 	for len(ids) > 0 {
-		surfaceId := ids[0]
+		surfaceTextId := ids[0]
 		posnameId := ids[1]
 		baseId := ids[2]
 		kanaId := ids[3]
 		pronId := ids[4]
 		lemmId := ids[5]
 		metaId := dict._appendMetaToArray(posnameId, baseId, kanaId, pronId, lemmId)
-		s := dict.Texts[surfaceId]
+		s := dict.getText(surfaceTextId)
 		r += uint8(len(s))
 		rightOffsets = append(rightOffsets, r)
 		metaIds = append(metaIds, metaId)
@@ -129,7 +156,7 @@ func (dict *Dictionary) addMorphForComplex(surfaceId uint32, leftPosid uint16, r
 	metaId := complexMetaId + 0x80000000
 
 	morphId := dict._appendMorphToArray(leftPosid, rightPosid, wordCost, metaId)
-	dict._addMorphToSurface(surfaceId, morphId)
+	dict._addMorphToSurface(surfaceTextId, morphId)
 }
 
 func (dict *Dictionary) _appendMetaToArray(posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) uint32 {
@@ -150,28 +177,17 @@ func (dict *Dictionary) _appendMorphToArray(leftPosid uint16, rightPosid uint16,
 	return morphId
 }
 
-func (dict *Dictionary) _addMorphToSurface(surfaceId uint32, morphId uint32) {
+func (dict *Dictionary) _addMorphToSurface(surfaceTextId uint32, morphId uint32) {
 	lastSurface := &dict.SurfaceArray[len(dict.SurfaceArray) - 1]
-	if lastSurface.TextId != surfaceId {
+	if lastSurface.TextDaIndex != surfaceTextId {
 		if cap(dict.SurfaceArray) == len(dict.SurfaceArray) {
 			dict._resizeSurfaceArray()
 		}
-		dict.SurfaceArray = append(dict.SurfaceArray, Surface{surfaceId, make([]uint32, 0, 1)})
+		dict.SurfaceArray = append(dict.SurfaceArray, Surface{surfaceTextId, make([]uint32, 0, 1)})
 		lastSurface = &dict.SurfaceArray[len(dict.SurfaceArray) - 1]
+		dict.Da.setInfo(surfaceTextId, uint32(len(dict.SurfaceArray) - 1))
 	}
 	lastSurface.Morphs = append(lastSurface.Morphs, morphId)
-}
-
-func (dict *Dictionary) build() {
-	dict._slim()
-	l := len(dict.SurfaceArray)
-	words := make([]uint32, l)
-	infos := make([]uint32, l)
-	for i, s := range dict.SurfaceArray {
-		words[i] = s.TextId
-		infos[i] = uint32(i)
-	}
-	dict.Da.putWords(words, dict.Texts, infos)
 }
 
 func (dict *Dictionary) _slim() {

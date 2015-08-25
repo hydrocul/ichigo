@@ -1,16 +1,17 @@
 package main
 
+import "reflect"
 import "testing"
 
 func TestDoubleArray1(t *testing.T) {
 	da := makeDoubleArray(10)
-	var texts_str []string = []string{"abc", "def"}
+	var texts_str []string = []string{"abc", "def", "あ"}
 	var texts [][]uint8 = make([][]uint8, len(texts_str))
 	for i, t := range texts_str {
 		texts[i] = []uint8(t)
 	}
-	var words []uint32 = []uint32{0, 1}
-	var infos []uint32 = []uint32{10, 20}
+	var words []uint32 = []uint32{0, 1, 2}
+	var infos []uint32 = []uint32{10, 20, 30}
 	da.putWords(words, texts, infos)
 
 	index1 := da.nextByte(1, 'a')
@@ -29,6 +30,14 @@ func TestDoubleArray1(t *testing.T) {
 	if info != 10 {
 		t.Errorf("info: %d", info)
 	}
+	text1 := da.getText(index2)
+	if !reflect.DeepEqual(text1, []uint8("ab")) {
+		t.Errorf("text1: %s", text1)
+	}
+	text2 := da.getText(index3)
+	if !reflect.DeepEqual(text2, []uint8("abc")) {
+		t.Errorf("text2: %s", text2)
+	}
 
 	index1 = da.nextByte(1, 'd')
 	if index1 != 71 {
@@ -45,6 +54,12 @@ func TestDoubleArray1(t *testing.T) {
 	info = da.getInfo(index3)
 	if info != 20 {
 		t.Errorf("info: %d", info)
+	}
+
+	index1 = da.getWordDaIndex([]uint8("あ"))
+	text1 = da.getText(index1)
+	if !reflect.DeepEqual(text1, []uint8("あ")) {
+		t.Errorf("text1: %s", text1)
 	}
 }
 
