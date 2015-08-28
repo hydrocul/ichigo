@@ -68,16 +68,16 @@ func _expandMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
 	if morph.metaId < 0x80000000 {
 		return []*MorphNode{morph}
 	}
-	complex := dict.ComplexMetaArray[morph.metaId - 0x80000000]
-	size := len(complex.RightOffset)
+	combined := dict.CombinedMetaArray[morph.metaId - 0x80000000]
+	size := len(combined.RightOffset)
 	surface := dict.getText(morph.surfaceTextId)
 	ret := make([]*MorphNode, size)
 	for i := 0; i < size; i++ {
 		var surfaceStart int = 0
 		if i > 0 {
-			surfaceStart = int(complex.RightOffset[i - 1])
+			surfaceStart = int(combined.RightOffset[i - 1])
 		}
-		var surfaceEnd int = int(complex.RightOffset[i])
+		var surfaceEnd int = int(combined.RightOffset[i])
 		var surfaceText = surface[surfaceStart : surfaceEnd]
 		var leftPosid uint16 = 0xFFFF
 		var rightPosid uint16 = 0xFFFF
@@ -89,7 +89,7 @@ func _expandMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
 		if i == size - 1 {
 			rightPosid = morph.rightPosid
 		}
-		var metaId uint32 = complex.MetaId[i]
+		var metaId uint32 = combined.MetaId[i]
 		var leftBytePos int = _searchLeftBytePos(morph, surfaceStart)
 		var leftCodePointPos int = _searchLeftCodePointPos(morph, surfaceStart)
 		var rightBytePos int = _searchRightBytePos(morph, surfaceEnd - 1)

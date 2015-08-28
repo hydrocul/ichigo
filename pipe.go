@@ -221,7 +221,7 @@ func (pipe *Pipe) _pushCodePoint(text []uint8, leftPos int, rightPos int, leftBy
 // - (TODO)
 func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, rightPos int, leftBytePos int, leftCodePointPos int, rightBytePos int, rightCodePointPos int) []*DAStatus {
 	var ret []*DAStatus
-	newS := _createDAStatus()
+	newS := _createDAStatus() // 今回の文字クラスタから始まる形態素の探索用
 	newS.prevMorphs = make([]*MorphNode, 0)
 	if text == nil {
 		ret = make([]*DAStatus, 0, len(ss))
@@ -235,7 +235,7 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 		}
 	} else {
 		ret = make([]*DAStatus, 0, len(ss) * 2)
-		for i := 0; i < len(ss); i++ {
+		for i := 0; i < len(ss); i++ { // 既存の DAStatus のループ
 			s := ss[i]
 			if s.daIndex == 1 {
 				// 左位置の初期化
@@ -249,10 +249,10 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 				nodes = _findMinimumPath(pipe.dict, s.prevMorphs, nodes)
 				newS.prevMorphs = append(newS.prevMorphs, nodes...)
 			}
-			f := true // 今回の文字クラスタの最後までDoubleArrayを遷移できたかどうか
+			f := true // 今回の文字クラスタの最後までDoubleArrayを遷移できたかどうかのフラグ
 			ps := s.positionSeries
 			_checkAndResizePositionSeries(ps, rightPos - leftPos)
-			if pipe._nextByte(s, text[leftPos]) {
+			if pipe._nextByte(s, text[leftPos]) { // s の daIndex を1バイト分遷移
 				ps.leftBytePosSeries = append(ps.leftBytePosSeries, int8(leftBytePos - s.leftBytePos))
 				ps.leftCodePointPosSeries = append(ps.leftCodePointPosSeries, int8(leftCodePointPos - s.leftCodePointPos))
 				if leftPos == rightPos - 1 {
@@ -262,8 +262,8 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 					ps.rightBytePosSeries = append(ps.rightBytePosSeries, -1)
 					ps.rightCodePointPosSeries = append(ps.rightCodePointPosSeries, -1)
 				}
-				for j := leftPos + 1; j < rightPos - 1; j++ {
-					if pipe._nextByte(s, text[j]) {
+				for j := leftPos + 1; j < rightPos - 1; j++ { // 文字クラスタの2バイト目以降をループ
+					if pipe._nextByte(s, text[j]) { // s の daIndex を1バイト分遷移
 						ps.leftBytePosSeries = append(ps.leftBytePosSeries, -1)
 						ps.leftCodePointPosSeries = append(ps.leftCodePointPosSeries, -1)
 						ps.rightBytePosSeries = append(ps.rightBytePosSeries, -1)
@@ -302,6 +302,7 @@ func (pipe *Pipe) _pushCharCluster(ss []*DAStatus, text []uint8, leftPos int, ri
 }
 
 func _DEBUG_printDAStatuses(ss []*DAStatus, text []uint8, leftPos int, rightPos int) {
+/*
 	if text == nil {
 		fmt.Printf("DEBUG EOS\n")
 	} else {
@@ -315,6 +316,7 @@ func _DEBUG_printDAStatuses(ss []*DAStatus, text []uint8, leftPos int, rightPos 
 			_DEBUG_printNodes(s.prevMorphs[j])
 		}
 	}
+// */
 }
 
 func _DEBUG_printNodes(s *MorphNode) {

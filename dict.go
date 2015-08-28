@@ -11,7 +11,7 @@ type Dictionary struct {
 	// 0はterminator
 
 	MetaArray []Meta
-	ComplexMetaArray []ComplexMeta
+	CombinedMetaArray []CombinedMeta
 
 	Da *DoubleArray
 
@@ -27,7 +27,7 @@ type Morph struct {
 	LeftPosid uint16
 	RightPosid uint16
 	WordCost int16
-	MetaId uint32 // more than 0x80000000 means ComplexMeta
+	MetaId uint32 // more than 0x80000000 means CombinedMeta
 }
 
 type Meta struct {
@@ -38,7 +38,7 @@ type Meta struct {
 	LemmaId uint32
 }
 
-type ComplexMeta struct {
+type CombinedMeta struct {
 	RightOffset []uint8
 	MetaId []uint32
 }
@@ -86,12 +86,12 @@ func (dict *Dictionary) _resizeMetaArray() {
   dict.MetaArray = newMetaArray
 }
 
-func (dict *Dictionary) _resizeComplexMetaArray() {
-  size := len(dict.ComplexMetaArray)
+func (dict *Dictionary) _resizeCombinedMetaArray() {
+  size := len(dict.CombinedMetaArray)
   newSize := size * 2
-  newComplexMetaArray := make([]ComplexMeta, size, newSize)
-  copy(newComplexMetaArray[:size], dict.ComplexMetaArray)
-  dict.ComplexMetaArray = newComplexMetaArray
+  newCombinedMetaArray := make([]CombinedMeta, size, newSize)
+  copy(newCombinedMetaArray[:size], dict.CombinedMetaArray)
+  dict.CombinedMetaArray = newCombinedMetaArray
 }
 
 func (dict *Dictionary) addTexts(words [][]uint8) {
@@ -127,7 +127,7 @@ func (dict *Dictionary) addMorph(surfaceTextId uint32, leftPosid uint16, rightPo
 }
 
 // idsの数は6の倍数
-func (dict *Dictionary) addMorphForComplex(surfaceTextId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, ids []uint32) {
+func (dict *Dictionary) addMorphForCombined(surfaceTextId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, ids []uint32) {
 	var r uint8 = 0
 	var rightOffsets []uint8 = make([]uint8, 0, 32)
 	var metaIds []uint32 = make([]uint32, 0, 32)
@@ -148,12 +148,12 @@ func (dict *Dictionary) addMorphForComplex(surfaceTextId uint32, leftPosid uint1
 		ids = ids[6:]
 	}
 
-	if cap(dict.ComplexMetaArray) == len(dict.ComplexMetaArray) {
-		dict._resizeComplexMetaArray()
+	if cap(dict.CombinedMetaArray) == len(dict.CombinedMetaArray) {
+		dict._resizeCombinedMetaArray()
 	}
-	complexMetaId := uint32(len(dict.ComplexMetaArray))
-	dict.ComplexMetaArray = append(dict.ComplexMetaArray, ComplexMeta{rightOffsets, metaIds})
-	metaId := complexMetaId + 0x80000000
+	combinedMetaId := uint32(len(dict.CombinedMetaArray))
+	dict.CombinedMetaArray = append(dict.CombinedMetaArray, CombinedMeta{rightOffsets, metaIds})
+	metaId := combinedMetaId + 0x80000000
 
 	morphId := dict._appendMorphToArray(leftPosid, rightPosid, wordCost, metaId)
 	dict._addMorphToSurface(surfaceTextId, morphId)

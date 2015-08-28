@@ -105,7 +105,7 @@ func parseDictFile(fname string, dict *Dictionary) {
 					ids[i * 6 + 4] = _parseText(cols[i * 6 + 8], dict)
 					ids[i * 6 + 5] = _parseText(cols[i * 6 + 9], dict)
 				}
-				dict.addMorphForComplex(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
+				dict.addMorphForCombined(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
 			} else {
 				panic("Illegal format: " + text)
 			}
@@ -131,7 +131,7 @@ func parseDictFile(fname string, dict *Dictionary) {
 					ids[i * 6 + 4] = 0
 					ids[i * 6 + 5] = 0
 				}
-				dict.addMorphForComplex(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
+				dict.addMorphForCombined(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
 			} else {
 				panic("Illegal format: " + text)
 			}
