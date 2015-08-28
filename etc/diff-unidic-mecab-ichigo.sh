@@ -18,7 +18,7 @@ if [ -z "$INPUT" ]; then
 fi
 
 cat $INPUT | ./ichigo-unidic > $tmpdir/ichigo.raw || exit $?
-cat $INPUT | mecab -d /usr/local/lib/mecab/dic/unidic > $tmpdir/mecab.raw || exit $?
+cat $INPUT | ./etc/mecab-unidic > $tmpdir/mecab.raw || exit $?
 
 cat $tmpdir/mecab.raw | perl -Mutf8 -MEncode -nle '
     @F = split(/\t/, $_);

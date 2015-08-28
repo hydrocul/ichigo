@@ -1,0 +1,5 @@
+#!/bin/sh
+
+mecab -d /usr/local/lib/mecab/dic/unidic "$@"
+
+
