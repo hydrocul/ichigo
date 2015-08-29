@@ -42,18 +42,12 @@ func parseTextsFile(fname string, dict *Dictionary) {
 }
 
 // 辞書ファイルのフォーマット
-// ipadic形式
-//   単独の形態素 (7カラム)
-//     表層形 左文脈ID 右文脈ID コスト 品詞名 原型 ふりがな
-//     苺 1285 1285 100 名詞 苺 いちご
-//   連結形態素 (8カラム + n * 4カラム)
-//     表層形 左文脈ID 右文脈ID コスト 表層系 品詞名 原型 ふりがな
-//     きました 10 10 100 き 動詞カ行促音便五段活用連用形語尾 き き まし 助動詞丁寧マス連用形タ接続 ます まし た 助動詞完了タ終止連体形 た た
-// unidic形式 TODO
 //   単独の形態素 (9カラム)
 //     表層形 左文脈ID 右文脈ID コスト 品詞名 原型 ふりがな 発音 代表表記
-//   連結形態素 (10カラム + n * 6カラム)
-//     表層形 左文脈ID 右文脈ID コスト 表層系 品詞名 原型 ふりがな 発音 代表表記
+//   連結形態素 (10カラム + n * 6カラム) (以下は2形態素連結の例で、16カラム)
+//     表層形 左文脈ID 右文脈ID コスト
+//       形態素1-表層系 形態素1-品詞名 形態素1-原型 形態素1-ふりがな 形態素1-発音 形態素1-代表表記
+//       形態素2-表層系 形態素2-品詞名 形態素2-原型 形態素2-ふりがな 形態素2-発音 形態素2-代表表記
 
 func parseDictFile(fname string, dict *Dictionary) {
 	fp, err := os.Open(fname)
@@ -79,62 +73,34 @@ func parseDictFile(fname string, dict *Dictionary) {
 		leftPosid := _parseInt(cols[1])
 		rightPosid := _parseInt(cols[2])
 		wordCost := _parseInt(cols[3])
-		if dictionarySourceFormat == unidicDictionarySourceFormat {
-			if len(cols) == 9 {
-				posnameTextId := _parseText(cols[4], dict)
-				baseTextId := _parseText(cols[5], dict)
-				kanaTextId := _parseText(cols[6], dict)
-				pronTextId := _parseText(cols[7], dict)
-				lemmTextId := _parseText(cols[8], dict)
-				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
-			} else if len(cols) == 10 {
-				posnameTextId := _parseText(cols[5], dict)
-				baseTextId := _parseText(cols[6], dict)
-				kanaTextId := _parseText(cols[7], dict)
-				pronTextId := _parseText(cols[8], dict)
-				lemmTextId := _parseText(cols[9], dict)
-				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
-			} else if len(cols) > 10 && len(cols) % 6 == 4 {
-				s := (len(cols) - 4) / 6;
-				var ids = make([]uint32, s * 6)
-				for i := 0; i < s; i++ {
-					ids[i * 6 + 0] = _parseText(cols[i * 6 + 4], dict)
-					ids[i * 6 + 1] = _parseText(cols[i * 6 + 5], dict)
-					ids[i * 6 + 2] = _parseText(cols[i * 6 + 6], dict)
-					ids[i * 6 + 3] = _parseText(cols[i * 6 + 7], dict)
-					ids[i * 6 + 4] = _parseText(cols[i * 6 + 8], dict)
-					ids[i * 6 + 5] = _parseText(cols[i * 6 + 9], dict)
-				}
-				dict.addMorphForCombined(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
-			} else {
-				panic("Illegal format: " + text)
+		if len(cols) == 9 {
+			posnameTextId := _parseText(cols[4], dict)
+			baseTextId := _parseText(cols[5], dict)
+			kanaTextId := _parseText(cols[6], dict)
+			pronTextId := _parseText(cols[7], dict)
+			lemmTextId := _parseText(cols[8], dict)
+			dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
+		} else if len(cols) == 10 {
+			posnameTextId := _parseText(cols[5], dict)
+			baseTextId := _parseText(cols[6], dict)
+			kanaTextId := _parseText(cols[7], dict)
+			pronTextId := _parseText(cols[8], dict)
+			lemmTextId := _parseText(cols[9], dict)
+			dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
+		} else if len(cols) > 10 && len(cols) % 6 == 4 {
+			s := (len(cols) - 4) / 6;
+			var ids = make([]uint32, s * 6)
+			for i := 0; i < s; i++ {
+				ids[i * 6 + 0] = _parseText(cols[i * 6 + 4], dict)
+				ids[i * 6 + 1] = _parseText(cols[i * 6 + 5], dict)
+				ids[i * 6 + 2] = _parseText(cols[i * 6 + 6], dict)
+				ids[i * 6 + 3] = _parseText(cols[i * 6 + 7], dict)
+				ids[i * 6 + 4] = _parseText(cols[i * 6 + 8], dict)
+				ids[i * 6 + 5] = _parseText(cols[i * 6 + 9], dict)
 			}
+			dict.addMorphForCombined(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
 		} else {
-			if len(cols) == 7 {
-				posnameTextId := _parseText(cols[4], dict)
-				baseTextId := _parseText(cols[5], dict)
-				kanaTextId := _parseText(cols[6], dict)
-				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, 0, 0)
-			} else if len(cols) == 8 {
-				posnameTextId := _parseText(cols[5], dict)
-				baseTextId := _parseText(cols[6], dict)
-				kanaTextId := _parseText(cols[7], dict)
-				dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, 0, 0)
-			} else if len(cols) > 8 && len(cols) % 4 == 0 {
-				s := (len(cols) - 4) / 4;
-				var ids = make([]uint32, s * 6)
-				for i := 0; i < s; i++ {
-					ids[i * 6 + 0] = _parseText(cols[i * 4 + 4], dict)
-					ids[i * 6 + 1] = _parseText(cols[i * 4 + 5], dict)
-					ids[i * 6 + 2] = _parseText(cols[i * 4 + 6], dict)
-					ids[i * 6 + 3] = _parseText(cols[i * 4 + 7], dict)
-					ids[i * 6 + 4] = 0
-					ids[i * 6 + 5] = 0
-				}
-				dict.addMorphForCombined(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
-			} else {
-				panic("Illegal format: " + text)
-			}
+			panic("Illegal format: " + text)
 		}
 	}
 }
