@@ -70,35 +70,49 @@ func parseDictFile(fname string, dict *Dictionary) {
 			continue;
 		}
 		surfaceTextId := _parseText(cols[0], dict)
-		leftPosid := _parseInt(cols[1])
-		rightPosid := _parseInt(cols[2])
-		wordCost := _parseInt(cols[3])
+		leftPosid := uint16(_parseInt(cols[1]))
+		rightPosid := uint16(_parseInt(cols[2]))
+		wordCost := int16(_parseInt(cols[3]))
 		if len(cols) == 9 {
-			posnameTextId := _parseText(cols[4], dict)
-			baseTextId := _parseText(cols[5], dict)
-			kanaTextId := _parseText(cols[6], dict)
-			pronTextId := _parseText(cols[7], dict)
-			lemmTextId := _parseText(cols[8], dict)
-			dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
+			posnameId := _parseText(cols[4], dict)
+			baseId := _parseText(cols[5], dict)
+			kanaId := _parseText(cols[6], dict)
+			pronId := _parseText(cols[7], dict)
+			lemmId := _parseText(cols[8], dict)
+			metaId := dict.createMeta(posnameId, baseId, kanaId, pronId, lemmId)
+			morphId := dict.createMorph(leftPosid, rightPosid, wordCost, metaId)
+			dict.addMorphToSurface(surfaceTextId, morphId)
 		} else if len(cols) == 10 {
-			posnameTextId := _parseText(cols[5], dict)
-			baseTextId := _parseText(cols[6], dict)
-			kanaTextId := _parseText(cols[7], dict)
-			pronTextId := _parseText(cols[8], dict)
-			lemmTextId := _parseText(cols[9], dict)
-			dict.addMorph(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), posnameTextId, baseTextId, kanaTextId, pronTextId, lemmTextId)
-		} else if len(cols) > 10 && len(cols) % 6 == 4 {
-			s := (len(cols) - 4) / 6;
-			var ids = make([]uint32, s * 6)
-			for i := 0; i < s; i++ {
-				ids[i * 6 + 0] = _parseText(cols[i * 6 + 4], dict)
-				ids[i * 6 + 1] = _parseText(cols[i * 6 + 5], dict)
-				ids[i * 6 + 2] = _parseText(cols[i * 6 + 6], dict)
-				ids[i * 6 + 3] = _parseText(cols[i * 6 + 7], dict)
-				ids[i * 6 + 4] = _parseText(cols[i * 6 + 8], dict)
-				ids[i * 6 + 5] = _parseText(cols[i * 6 + 9], dict)
+			posnameId := _parseText(cols[5], dict)
+			baseId := _parseText(cols[6], dict)
+			kanaId := _parseText(cols[7], dict)
+			pronId := _parseText(cols[8], dict)
+			lemmId := _parseText(cols[9], dict)
+			metaId := dict.createMeta(posnameId, baseId, kanaId, pronId, lemmId)
+			morphId := dict.createMorph(leftPosid, rightPosid, wordCost, metaId)
+			dict.addMorphToSurface(surfaceTextId, morphId)
+		} else if len(cols) > 10 {
+			surfaceTextIds := make([]uint32, 0, 2)
+			metas := make([]uint32, 0, 2)
+			var offset = 4
+			for offset < len(cols) {
+				if offset + 6 >= len(cols) {
+					panic("Illegal format: " + text)
+				}
+				surfaceTextId := _parseText(cols[offset], dict)
+				posnameId := _parseText(cols[offset + 1], dict)
+				baseId := _parseText(cols[offset + 2], dict)
+				kanaId := _parseText(cols[offset + 3], dict)
+				pronId := _parseText(cols[offset + 4], dict)
+				lemmId := _parseText(cols[offset + 5], dict)
+				metaId := dict.createMeta(posnameId, baseId, kanaId, pronId, lemmId)
+				surfaceTextIds = append(surfaceTextIds, surfaceTextId)
+				metas = append(metas, metaId)
+				offset += 6
 			}
-			dict.addMorphForCombined(surfaceTextId, uint16(leftPosid), uint16(rightPosid), int16(wordCost), ids)
+			combinedMetaId := dict.createCombinedMeta(surfaceTextIds, metas)
+			morphId := dict.createMorph(leftPosid, rightPosid, wordCost, combinedMetaId)
+			dict.addMorphToSurface(surfaceTextId, morphId)
 		} else {
 			panic("Illegal format: " + text)
 		}

@@ -120,64 +120,7 @@ func (dict *Dictionary) getText(id uint32) []uint8 {
 }
 
 // TODO surface, leftPosid, rightPosid が同じ複数のmorphは追加できないように
-func (dict *Dictionary) addMorph(surfaceTextId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) {
-	metaId := dict._appendMetaToArray(posnameId, baseId, kanaId, pronId, lemmaId)
-	morphId := dict._appendMorphToArray(leftPosid, rightPosid, wordCost, metaId)
-	dict._addMorphToSurface(surfaceTextId, morphId)
-}
-
-// idsの数は6の倍数
-func (dict *Dictionary) addMorphForCombined(surfaceTextId uint32, leftPosid uint16, rightPosid uint16, wordCost int16, ids []uint32) {
-	var r uint8 = 0
-	var rightOffsets []uint8 = make([]uint8, 0, 32)
-	var metaIds []uint32 = make([]uint32, 0, 32)
-	//var surface []uint8 = make([]uint8, 0, 128)
-	for len(ids) > 0 {
-		surfaceTextId := ids[0]
-		posnameId := ids[1]
-		baseId := ids[2]
-		kanaId := ids[3]
-		pronId := ids[4]
-		lemmId := ids[5]
-		metaId := dict._appendMetaToArray(posnameId, baseId, kanaId, pronId, lemmId)
-		s := dict.getText(surfaceTextId)
-		r += uint8(len(s))
-		rightOffsets = append(rightOffsets, r)
-		metaIds = append(metaIds, metaId)
-		//surface = append(surface, s...)
-		ids = ids[6:]
-	}
-
-	if cap(dict.CombinedMetaArray) == len(dict.CombinedMetaArray) {
-		dict._resizeCombinedMetaArray()
-	}
-	combinedMetaId := uint32(len(dict.CombinedMetaArray))
-	dict.CombinedMetaArray = append(dict.CombinedMetaArray, CombinedMeta{rightOffsets, metaIds})
-	metaId := combinedMetaId + 0x80000000
-
-	morphId := dict._appendMorphToArray(leftPosid, rightPosid, wordCost, metaId)
-	dict._addMorphToSurface(surfaceTextId, morphId)
-}
-
-func (dict *Dictionary) _appendMetaToArray(posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) uint32 {
-	if cap(dict.MetaArray) == len(dict.MetaArray) {
-		dict._resizeMetaArray()
-	}
-	metaId := uint32(len(dict.MetaArray))
-	dict.MetaArray = append(dict.MetaArray, Meta{posnameId, baseId, kanaId, pronId, lemmaId})
-	return metaId;
-}
-
-func (dict *Dictionary) _appendMorphToArray(leftPosid uint16, rightPosid uint16, wordCost int16, metaId uint32) uint32 {
-	if cap(dict.MorphArray) == len(dict.MorphArray) {
-		dict._resizeMorphArray()
-	}
-	morphId := uint32(len(dict.MorphArray))
-	dict.MorphArray = append(dict.MorphArray, Morph{leftPosid, rightPosid, wordCost, metaId})
-	return morphId
-}
-
-func (dict *Dictionary) _addMorphToSurface(surfaceTextId uint32, morphId uint32) {
+func (dict *Dictionary) addMorphToSurface(surfaceTextId uint32, morphId uint32) {
 	lastSurface := &dict.SurfaceArray[len(dict.SurfaceArray) - 1]
 	if lastSurface.TextDaIndex != surfaceTextId {
 		if cap(dict.SurfaceArray) == len(dict.SurfaceArray) {
@@ -188,6 +131,42 @@ func (dict *Dictionary) _addMorphToSurface(surfaceTextId uint32, morphId uint32)
 		dict.Da.setInfo(surfaceTextId, uint32(len(dict.SurfaceArray) - 1))
 	}
 	lastSurface.Morphs = append(lastSurface.Morphs, morphId)
+}
+
+func (dict *Dictionary) createMorph(leftPosid uint16, rightPosid uint16, wordCost int16, metaId uint32) uint32 {
+	l := len(dict.MorphArray)
+	if cap(dict.MorphArray) == l {
+		dict._resizeMorphArray()
+	}
+	dict.MorphArray = append(dict.MorphArray, Morph{leftPosid, rightPosid, wordCost, metaId})
+	return uint32(l)
+}
+
+func (dict *Dictionary) createMeta(posnameId uint32, baseId uint32, kanaId uint32, pronId uint32, lemmaId uint32) uint32 {
+	l := len(dict.MetaArray)
+	if cap(dict.MetaArray) == l {
+		dict._resizeMetaArray()
+	}
+	meta := Meta{posnameId, baseId, kanaId, pronId, lemmaId}
+	dict.MetaArray = append(dict.MetaArray, meta)
+	return uint32(l)
+}
+
+func (dict *Dictionary) createCombinedMeta(surfaceTextIds []uint32, metas []uint32) uint32 {
+	var rightOffsets []uint8 = make([]uint8, len(metas))
+	var r uint8 = 0
+	for i := 0; i < len(metas); i++ {
+		s := dict.getText(surfaceTextIds[i])
+		r += uint8(len(s))
+		rightOffsets[i] = r
+	}
+	l := len(dict.CombinedMetaArray)
+	if cap(dict.CombinedMetaArray) == l {
+		dict._resizeCombinedMetaArray()
+	}
+	meta := CombinedMeta{RightOffset: rightOffsets, MetaId: metas}
+	dict.CombinedMetaArray = append(dict.CombinedMetaArray, meta)
+	return uint32(l) + 0x80000000
 }
 
 func (dict *Dictionary) _slim() {
