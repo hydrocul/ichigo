@@ -91,6 +91,12 @@ func pushEOF(pipe *Pipe) []*MorphNode {
 func printVerbose(pipe *Pipe, nodes []*MorphNode) {
 	for i := 0; i < len(nodes); i++ {
 		n := nodes[i]
+		var flags string
+		if n.isUnknown() {
+			flags = "?"
+		} else {
+			flags = ""
+		}
 		surface := pipe.getSurface(n)
 		posname := pipe.getPosname(n)
 		meta := pipe.dict.MetaArray[n.metaId]
@@ -98,7 +104,14 @@ func printVerbose(pipe *Pipe, nodes []*MorphNode) {
 		kana := pipe.dict.getText(meta.KanaId)
 		pron := pipe.dict.getText(meta.PronId)
 		lemm := pipe.dict.getText(meta.LemmaId)
-		fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", _escapeForOutput(n.text), _escapeForOutput(surface), posname, base, kana, pron, lemm)
+		fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+			flags,
+			_escapeForOutput(n.text),
+			_escapeForOutput(surface),
+			posname, base, kana, pron, lemm,
+			n.leftPosid, n.rightPosid,
+			n.wordCost,
+			n.leftBytePos, n.leftCodePointPos, n.rightBytePos, n.rightCodePointPos)
 	}
 }
 

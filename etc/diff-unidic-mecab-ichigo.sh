@@ -56,10 +56,10 @@ cat $tmpdir/mecab.raw | perl -Mutf8 -MEncode -nle '
 
 cat $tmpdir/ichigo.raw | perl -nle '
     @F = split(/\t/, $_);
-    $surface = $F[1];
-    $posname = $F[2];
-    $lemma = $F[6];
-    $pron = $F[5];
+    $surface = $F[2];
+    $posname = $F[3];
+    $lemma = $F[7];
+    $pron = $F[6];
     print "$surface\t$posname\t$lemma\t$pron";
 ' > $tmpdir/ichigo.txt
 

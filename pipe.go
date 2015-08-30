@@ -43,6 +43,14 @@ type MorphNode struct {
 	totalCost int
 }
 
+func (morphNode *MorphNode) isUnknown() bool {
+		if morphNode.metaId == 0 {
+			return true
+		} else {
+			return false
+		}
+}
+
 type PositionSeries struct {
 	leftBytePosSeries []int8
 	leftCodePointPosSeries []int8
