@@ -1,23 +1,8 @@
 package main
 
-func (pipe *Pipe) shiftMorphNodes() []*MorphNode {
-	ret := make([]*MorphNode, 0, 1000)
-	for {
-		ms := _shiftMorphNode(pipe.dict, pipe.daStatuses)
-		if ms == nil {
-			break
-		}
-		for i := 0; i < len(ms); i++ {
-			m := ms[i]
-			if m.rightPosid != 0 {
-				ret = append(ret, m)
-			}
-		}
-	}
-	return ret
-}
-
-func _shiftMorphNode(dict *Dictionary, ss []*DAStatus) []*MorphNode {
+func (pipe *Pipe) shiftMorphNode() *MorphNode {
+	dict := pipe.dict
+	ss := pipe.daStatuses
 	var l int = 0
 	for i := 0; i < len(ss); i++ {
 		l += len(ss[i].prevMorphs)
@@ -29,42 +14,7 @@ func _shiftMorphNode(dict *Dictionary, ss []*DAStatus) []*MorphNode {
 	return _shiftMorphNodeSub(dict, nodes)
 }
 
-func _shiftMorphNodeSub(dict *Dictionary, nodes []*MorphNode) []*MorphNode {
-	var first *MorphNode = _getFirstMorphNode(nodes[0])
-	if first == nodes[0] {
-		return nil
-	}
-	for i := 1; i < len(nodes); i++ {
-		if first == nodes[i] {
-			return nil
-		}
-		f := _getFirstMorphNode(nodes[i])
-		if first != f {
-			return nil
-		}
-	}
-	for i := 0; i < len(nodes); i++ {
-		n := _getNextMorphNode(nodes[i], first)
-		n.prev = nil
-	}
-	return _expandMorphNode(dict, first)
-}
-
-func _getNextMorphNode(node *MorphNode, first *MorphNode) *MorphNode {
-	for node.prev != first && node.prev != nil {
-		node = node.prev
-	}
-	return node
-}
-
-func _getFirstMorphNode(node *MorphNode) *MorphNode {
-	for node.prev != nil {
-		node = node.prev
-	}
-	return node
-}
-
-func _expandMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
+func expandMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
 	if morph.metaId < 0x80000000 {
 		return []*MorphNode{morph}
 	}
@@ -111,6 +61,41 @@ func _expandMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
 		ret[i] = m
 	}
 	return ret
+}
+
+func _shiftMorphNodeSub(dict *Dictionary, nodes []*MorphNode) *MorphNode {
+	var first *MorphNode = _getFirstMorphNode(nodes[0])
+	if first == nodes[0] {
+		return nil
+	}
+	for i := 1; i < len(nodes); i++ {
+		if first == nodes[i] {
+			return nil
+		}
+		f := _getFirstMorphNode(nodes[i])
+		if first != f {
+			return nil
+		}
+	}
+	for i := 0; i < len(nodes); i++ {
+		n := _getNextMorphNode(nodes[i], first)
+		n.prev = nil
+	}
+	return first
+}
+
+func _getNextMorphNode(node *MorphNode, first *MorphNode) *MorphNode {
+	for node.prev != first && node.prev != nil {
+		node = node.prev
+	}
+	return node
+}
+
+func _getFirstMorphNode(node *MorphNode) *MorphNode {
+	for node.prev != nil {
+		node = node.prev
+	}
+	return node
 }
 
 func _searchLeftBytePos(morph *MorphNode, offset int) int {

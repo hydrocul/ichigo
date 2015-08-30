@@ -37,12 +37,12 @@ func main() {
 			line, lfflag = trimLF(line)
 			// line には最後の改行を含まない
 			{
-				nodes := pushText(pipe, line);
-				printVerbose(pipe, nodes)
+				pushText(pipe, line);
+				printVerbose(pipe)
 			}
 			{
-				nodes := pushEOF(pipe);
-				printVerbose(pipe, nodes)
+				pushEOF(pipe);
+				printVerbose(pipe)
 			}
 			if lfflag {
 				fmt.Printf("\n")
@@ -53,12 +53,12 @@ func main() {
 		} else {
 			{
 				// line には最後の改行を含む
-				nodes := pushText(pipe, line);
-				printVerbose(pipe, nodes)
+				pushText(pipe, line);
+				printVerbose(pipe)
 			}
 			if err == io.EOF {
-				nodes := pushEOF(pipe);
-				printVerbose(pipe, nodes)
+				pushEOF(pipe);
+				printVerbose(pipe)
 				break
 			}
 		}
@@ -79,40 +79,52 @@ func trimLF(line []uint8) ([]uint8, bool) {
 	return line, flag
 }
 
-func pushText(pipe *Pipe, text []uint8) []*MorphNode {
+func pushText(pipe *Pipe, text []uint8) {
 	pipe.parseText(text);
-	return pipe.shiftMorphNodes()
 }
 
-func pushEOF(pipe *Pipe) []*MorphNode {
-	return pushText(pipe, nil)
+func pushEOF(pipe *Pipe) {
+	pushText(pipe, nil)
 }
 
-func printVerbose(pipe *Pipe, nodes []*MorphNode) {
-	for i := 0; i < len(nodes); i++ {
-		n := nodes[i]
-		var flags string
-		if n.isUnknown() {
-			flags = "?"
-		} else {
-			flags = ""
+func printVerbose(pipe *Pipe) {
+	for {
+		node := pipe.shiftMorphNode()
+		if node == nil {
+			break
 		}
-		surface := pipe.getSurface(n)
-		posname := pipe.getPosname(n)
-		meta := pipe.dict.MetaArray[n.metaId]
-		base := pipe.dict.getText(meta.BaseId)
-		kana := pipe.dict.getText(meta.KanaId)
-		pron := pipe.dict.getText(meta.PronId)
-		lemm := pipe.dict.getText(meta.LemmaId)
-		fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
-			flags,
-			_escapeForOutput(n.text),
-			_escapeForOutput(surface),
-			posname, base, kana, pron, lemm,
-			n.leftPosid, n.rightPosid,
-			n.wordCost,
-			n.leftBytePos, n.leftCodePointPos, n.rightBytePos, n.rightCodePointPos)
+		ns := expandMorphNode(pipe.dict, node)
+		for i := 0; i < len(ns); i++ {
+			n := ns[i]
+			if n.rightPosid != 0 { // BOS, EOS 以外を出力
+				printNode(pipe, n)
+			}
+		}
 	}
+}
+
+func printNode(pipe *Pipe, n *MorphNode) {
+	var flags string
+	if n.isUnknown() {
+		flags = "?"
+	} else {
+		flags = ""
+	}
+	surface := pipe.getSurface(n)
+	posname := pipe.getPosname(n)
+	meta := pipe.dict.MetaArray[n.metaId]
+	base := pipe.dict.getText(meta.BaseId)
+	kana := pipe.dict.getText(meta.KanaId)
+	pron := pipe.dict.getText(meta.PronId)
+	lemm := pipe.dict.getText(meta.LemmaId)
+	fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+		flags,
+		_escapeForOutput(n.text),
+		_escapeForOutput(surface),
+		posname, base, kana, pron, lemm,
+		n.leftPosid, n.rightPosid,
+		n.wordCost,
+		n.leftBytePos, n.leftCodePointPos, n.rightBytePos, n.rightCodePointPos)
 }
 
 func _escapeForOutput(str []uint8) []uint8 {

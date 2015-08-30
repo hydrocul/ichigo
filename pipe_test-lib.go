@@ -20,17 +20,30 @@ func _testPipeParse(t *testing.T, dict *Dictionary, text string, expected string
 		start += unitlen
 	}
 	pipe.parseText(nil)
-	nodes := pipe.shiftMorphNodes()
+	var output []uint8 = nil
 	if t != nil {
-		output := make([]uint8, 0, 18)
-		for i := 0; i < len(nodes); i++ {
-			n := nodes[i]
-			output = append(output, '|')
-			if n.surfaceTextId == 0 {
-				output = append(output, '?')
-			}
-			output = append(output, n.text...)
+		output = make([]uint8, 0, 18)
+	}
+	for {
+		node := pipe.shiftMorphNode()
+		if node == nil {
+			break
 		}
+		ns := expandMorphNode(dict, node)
+		if output != nil {
+			for j := 0; j < len(ns); j++ {
+				n := ns[j]
+				if n.rightPosid != 0 { // BOS, EOS 以外を出力
+					output = append(output, '|')
+					if n.isUnknown() {
+						output = append(output, '?')
+					}
+					output = append(output, n.text...)
+				}
+			}
+		}
+	}
+	if output != nil {
 		output = append(output, '|')
 		if !reflect.DeepEqual(output, []uint8(expected)) {
 			t.Errorf("expected: %s, actual: %s", expected, output)

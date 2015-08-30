@@ -26,7 +26,7 @@ type DAStatus struct {
 }
 
 type MorphNode struct {
-	// 連結形態素をばらす処理は _expandMorphNode にて行う
+	// 連結形態素をばらす処理は expandMorphNode にて行う
 	text []uint8
 	surfaceTextId uint32 // 未知語または連結形態素の場合は0
 	surfaceText []uint8  // 連結形態素の場合のみ有効
