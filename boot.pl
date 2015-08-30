@@ -36,5 +36,8 @@ if ( ! -e $dictionaryPath) {
 }
 
 $ENV{"ICHIGO_DICTIONARY_PATH"} = "$tmpdir/$sha1/dict.dat";
-exec("$tmpdir/$sha1/main");
+
+# TODO help表示のパスが一時ファイルになってしまっている
+
+exec("$tmpdir/$sha1/main", @ARGV);
 
