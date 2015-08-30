@@ -7,8 +7,6 @@ import "io"
 import "os"
 
 func main() {
-	simpleFormat := flag.Bool("simple-format", false, "simple format")
-	middleFormat := flag.Bool("middle-format", false, "middle format")
 	eachLine := flag.Bool("each-line", false, "each line")
 	flag.Parse()
 
@@ -40,12 +38,11 @@ func main() {
 			// line には最後の改行を含まない
 			{
 				nodes := pushText(pipe, line);
-				printNode(pipe, nodes, *simpleFormat, *middleFormat)
+				printVerbose(pipe, nodes)
 			}
 			{
 				nodes := pushEOF(pipe);
-				printNode(pipe, nodes, *simpleFormat, *middleFormat)
-				printEnd(pipe, *simpleFormat, *middleFormat)
+				printVerbose(pipe, nodes)
 			}
 			if lfflag {
 				fmt.Printf("\n")
@@ -57,12 +54,11 @@ func main() {
 			{
 				// line には最後の改行を含む
 				nodes := pushText(pipe, line);
-				printNode(pipe, nodes, *simpleFormat, *middleFormat)
+				printVerbose(pipe, nodes)
 			}
 			if err == io.EOF {
 				nodes := pushEOF(pipe);
-				printNode(pipe, nodes, *simpleFormat, *middleFormat)
-				printEnd(pipe, *simpleFormat, *middleFormat)
+				printVerbose(pipe, nodes)
 				break
 			}
 		}
@@ -90,54 +86,6 @@ func pushText(pipe *Pipe, text []uint8) []*MorphNode {
 
 func pushEOF(pipe *Pipe) []*MorphNode {
 	return pushText(pipe, nil)
-}
-
-func printNode(pipe *Pipe, nodes []*MorphNode, simpleFormat bool, middleFormat bool) {
-	if simpleFormat {
-		printSimple(pipe, nodes)
-	} else if middleFormat {
-		printMiddle(pipe, nodes)
-	} else {
-		printVerbose(pipe, nodes)
-	}
-}
-
-func printEnd(pipe *Pipe, simpleFormat bool, middleFormat bool) {
-	if simpleFormat {
-		printMiddleEnd()
-	} else if middleFormat {
-		printMiddleEnd()
-	}
-}
-
-func printSimple(pipe *Pipe, nodes []*MorphNode) {
-	output := make([]uint8, 0, 1024)
-	for i := 0; i < len(nodes); i++ {
-		n := nodes[i]
-		output = append(output, '|')
-		output = append(output, n.text...)
-	}
-	os.Stdout.Write(output)
-}
-
-func printSimpleEnd() {
-	os.Stdout.Write([]uint8{'|'})
-}
-
-func printMiddle(pipe *Pipe, nodes []*MorphNode) {
-	output := make([]uint8, 0, 1024)
-	for i := 0; i < len(nodes); i++ {
-		n := nodes[i]
-		surface := pipe.getSurface(n)
-		posname := pipe.getPosname(n)
-		//meta := pipe.dict.MetaArray[n.metaId]
-		output = append(output, fmt.Sprintf("|%s[%s]", _escapeForOutput(surface), posname)...)
-	}
-	os.Stdout.Write(output)
-}
-
-func printMiddleEnd() {
-	os.Stdout.Write([]uint8{'|'})
 }
 
 func printVerbose(pipe *Pipe, nodes []*MorphNode) {
