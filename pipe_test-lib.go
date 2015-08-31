@@ -29,10 +29,12 @@ func _testPipeParse(t *testing.T, dict *Dictionary, text string, expected string
 		if node == nil {
 			break
 		}
-		ns := expandMorphNode(dict, node)
+		expandMorphNode(dict, node)
+//		ns := expandMorphNode(dict, node)
 		if output != nil {
-			for j := 0; j < len(ns); j++ {
-				n := ns[j]
+//			for j := 0; j < len(ns); j++ {
+//				n := ns[j]
+				n := node
 				if n.rightPosid != 0 { // BOS, EOS 以外を出力
 					output = append(output, '|')
 					if n.isUnknown() {
@@ -40,7 +42,7 @@ func _testPipeParse(t *testing.T, dict *Dictionary, text string, expected string
 					}
 					output = append(output, n.text...)
 				}
-			}
+//			}
 		}
 	}
 	if output != nil {

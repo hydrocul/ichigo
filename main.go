@@ -93,17 +93,43 @@ func printVerbose(pipe *Pipe) {
 		if node == nil {
 			break
 		}
-		ns := expandMorphNode(pipe.dict, node)
-		for i := 0; i < len(ns); i++ {
-			n := ns[i]
-			if n.rightPosid != 0 { // BOS, EOS 以外を出力
-				printNode(pipe, n)
+		if node.isCombined() {
+			nss := expandMorphNode(pipe.dict, node)
+			if len(nss) > 1 {
+				printFlagsOnly("<")
+				for j := 0; j < len(nss); j++ {
+					if j > 0 {
+						printFlagsOnly("-")
+					}
+					ns := nss[j]
+					for i := 0; i < len(ns); i++ {
+						n := ns[i]
+						printNode(pipe, n)
+					}
+				}
+				printFlagsOnly(">")
+			} else {
+				ns := nss[0]
+				for i := 0; i < len(ns); i++ {
+					n := ns[i]
+					printNode(pipe, n)
+				}
 			}
+		} else {
+				printNode(pipe, node)
 		}
 	}
 }
 
+func printFlagsOnly(flags string) {
+	fmt.Printf("%s\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n", flags)
+}
+
 func printNode(pipe *Pipe, n *MorphNode) {
+	if n.rightPosid == 0 {
+		// BOS, EOS は出力しない
+		return
+	}
 	var flags string
 	if n.isUnknown() {
 		flags = "?"

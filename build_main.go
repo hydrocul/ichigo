@@ -96,7 +96,7 @@ func parseDictFile(fname string, dict *Dictionary) {
 			metas := make([]uint32, 0, 2)
 			var offset = 4
 			for offset < len(cols) {
-				if offset + 6 >= len(cols) {
+				if offset + 6 > len(cols) {
 					panic("Illegal format: " + text)
 				}
 				surfaceTextId := _parseText(cols[offset], dict)

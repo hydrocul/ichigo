@@ -14,7 +14,27 @@ func (pipe *Pipe) shiftMorphNode() *MorphNode {
 	return _shiftMorphNodeSub(dict, nodes)
 }
 
-func expandMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
+func expandMorphNode(dict *Dictionary, morph *MorphNode) [][]*MorphNode {
+	if morph.metaId < 0x40000000 {
+		return [][]*MorphNode{[]*MorphNode{morph}}
+	}
+	if morph.metaId >= 0x80000000 {
+		return [][]*MorphNode{expandCombinedMorphNode(dict, morph)}
+	}
+	// 共存形態素の展開
+	parallelMetaId := morph.metaId
+	parallels := dict.ParallelMetaArray[parallelMetaId - 0x40000000].MetaId
+	ret := make([][]*MorphNode, len(parallels))
+	for i := 0; i < len(parallels); i++ {
+		morph.metaId = parallels[i]
+		ret[i] = expandCombinedMorphNode(dict, morph)
+	}
+	morph.metaId = parallelMetaId
+	return ret
+}
+
+func expandCombinedMorphNode(dict *Dictionary, morph *MorphNode) []*MorphNode {
+	// 0x40000000 - 0x80000000 はここには来ないはず
 	if morph.metaId < 0x80000000 {
 		return []*MorphNode{morph}
 	}

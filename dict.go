@@ -11,6 +11,7 @@ type Dictionary struct {
 	// 0はterminator
 
 	MetaArray []Meta
+	ParallelMetaArray []ParallelMeta
 	CombinedMetaArray []CombinedMeta
 
 	Da *DoubleArray
@@ -28,6 +29,7 @@ type Morph struct {
 	RightPosid uint16
 	WordCost int16
 	MetaId uint32 // more than 0x80000000 means CombinedMeta
+	              // more than 0x40000000 means ParallelMeta
 }
 
 type Meta struct {
@@ -38,6 +40,12 @@ type Meta struct {
 	LemmaId uint32
 }
 
+// 共存形態素
+type ParallelMeta struct {
+	MetaId []uint32 // more than 0x80000000 means CombinedMeta
+}
+
+// 連結形態素
 type CombinedMeta struct {
 	RightOffset []uint8
 	MetaId []uint32
@@ -151,6 +159,11 @@ func (dict *Dictionary) createMeta(posnameId uint32, baseId uint32, kanaId uint3
 	dict.MetaArray = append(dict.MetaArray, meta)
 	return uint32(l)
 }
+
+/*
+func (dict *Dictionary) createParallelMeta(metas []uint32) uint32 {
+}
+*/
 
 func (dict *Dictionary) createCombinedMeta(surfaceTextIds []uint32, metas []uint32) uint32 {
 	var rightOffsets []uint8 = make([]uint8, len(metas))

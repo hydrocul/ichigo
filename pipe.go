@@ -44,11 +44,19 @@ type MorphNode struct {
 }
 
 func (morphNode *MorphNode) isUnknown() bool {
-		if morphNode.metaId == 0 {
-			return true
-		} else {
-			return false
-		}
+	if morphNode.metaId == 0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (morphNode *MorphNode) isCombined() bool {
+	if morphNode.metaId >= 0x80000000 {
+		return true
+	} else {
+		return false
+	}
 }
 
 type PositionSeries struct {
