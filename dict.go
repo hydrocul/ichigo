@@ -94,6 +94,14 @@ func (dict *Dictionary) _resizeMetaArray() {
   dict.MetaArray = newMetaArray
 }
 
+func (dict *Dictionary) _resizeParallelMetaArray() {
+  size := len(dict.ParallelMetaArray)
+  newSize := size * 2
+  newParallelMetaArray := make([]ParallelMeta, size, newSize)
+  copy(newParallelMetaArray[:size], dict.ParallelMetaArray)
+  dict.ParallelMetaArray = newParallelMetaArray
+}
+
 func (dict *Dictionary) _resizeCombinedMetaArray() {
   size := len(dict.CombinedMetaArray)
   newSize := size * 2
@@ -160,10 +168,15 @@ func (dict *Dictionary) createMeta(posnameId uint32, baseId uint32, kanaId uint3
 	return uint32(l)
 }
 
-/*
 func (dict *Dictionary) createParallelMeta(metas []uint32) uint32 {
+	l := len(dict.ParallelMetaArray)
+	if cap(dict.ParallelMetaArray) == l {
+		dict._resizeParallelMetaArray()
+	}
+	meta := ParallelMeta{MetaId: metas}
+	dict.ParallelMetaArray = append(dict.ParallelMetaArray, meta)
+	return uint32(l) + 0x40000000
 }
-*/
 
 func (dict *Dictionary) createCombinedMeta(surfaceTextIds []uint32, metas []uint32) uint32 {
 	var rightOffsets []uint8 = make([]uint8, len(metas))

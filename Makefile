@@ -50,14 +50,14 @@ var/ipadic/normalized.txt: var/ipadic/mkdir var/download/ipadic.touch dict/mecab
 var/ipadic/formatted.txt: var/ipadic/mkdir var/ipadic/normalized.txt dict/ipadic/format.sh
 	cat var/ipadic/normalized.txt | sh dict/ipadic/format.sh > var/ipadic/formatted.txt
 
-var/ipadic/dict.txt: var/ipadic/mkdir var/ipadic/formatted.txt
-	cat var/ipadic/formatted.txt | LC_ALL=C sort > var/ipadic/dict.txt
+var/ipadic/dict-normal.txt: var/ipadic/mkdir var/ipadic/formatted.txt
+	cat var/ipadic/formatted.txt | LC_ALL=C sort > var/ipadic/dict-normal.txt
 
-var/ipadic/texts.txt: var/ipadic/mkdir var/ipadic/dict.txt dict/ipadic/texts.sh
-	cat var/ipadic/dict.txt | sh dict/ipadic/texts.sh > var/ipadic/texts.txt
+var/ipadic/texts.txt: var/ipadic/mkdir var/ipadic/dict-normal.txt dict/ipadic/texts.sh
+	cat var/ipadic/dict-normal.txt | sh dict/ipadic/texts.sh > var/ipadic/texts.txt
 
-var/ipadic/dict.dat: var/ipadic/mkdir var/ipadic/matrix.txt var/ipadic/dict.txt var/ipadic/texts.txt go/bin/ichigo-build-ipadic
-	go/bin/ichigo-build-ipadic var/ipadic/matrix.txt var/ipadic/dict.txt var/ipadic/texts.txt > var/ipadic/dict.dat.tmp
+var/ipadic/dict.dat: var/ipadic/mkdir var/ipadic/matrix.txt var/ipadic/dict-normal.txt var/ipadic/texts.txt go/bin/ichigo-build-ipadic
+	go/bin/ichigo-build-ipadic var/ipadic/matrix.txt var/ipadic/texts.txt var/ipadic/dict-normal.txt > var/ipadic/dict.dat.tmp
 	mv var/ipadic/dict.dat.tmp var/ipadic/dict.dat
 
 var/ipadic/main: go/bin/ichigo-ipadic
@@ -89,14 +89,14 @@ var/unidic/normalized.txt: var/unidic/mkdir var/download/unidic.touch dict/mecab
 var/unidic/formatted.txt: var/unidic/mkdir var/unidic/normalized.txt dict/unidic/format.sh
 	cat var/unidic/normalized.txt | sh dict/unidic/format.sh > var/unidic/formatted.txt
 
-var/unidic/dict.txt: var/unidic/mkdir var/unidic/formatted.txt
-	cat var/unidic/formatted.txt | LC_ALL=C sort > var/unidic/dict.txt
+var/unidic/dict-normal.txt: var/unidic/mkdir var/unidic/formatted.txt
+	cat var/unidic/formatted.txt | LC_ALL=C sort > var/unidic/dict-normal.txt
 
-var/unidic/texts.txt: var/unidic/mkdir var/unidic/dict.txt dict/unidic/texts.sh
-	cat var/unidic/dict.txt | sh dict/unidic/texts.sh > var/unidic/texts.txt
+var/unidic/texts.txt: var/unidic/mkdir var/unidic/dict-normal.txt dict/unidic/texts.sh
+	cat var/unidic/dict-normal.txt | sh dict/unidic/texts.sh > var/unidic/texts.txt
 
-var/unidic/dict.dat: var/unidic/mkdir var/unidic/matrix.txt var/unidic/dict.txt var/unidic/texts.txt go/bin/ichigo-build-unidic
-	go/bin/ichigo-build-unidic var/unidic/matrix.txt var/unidic/dict.txt var/unidic/texts.txt > var/unidic/dict.dat.tmp
+var/unidic/dict.dat: var/unidic/mkdir var/unidic/matrix.txt var/unidic/dict-normal.txt var/unidic/texts.txt go/bin/ichigo-build-unidic
+	go/bin/ichigo-build-unidic var/unidic/matrix.txt var/unidic/texts.txt var/unidic/dict-normal.txt > var/unidic/dict.dat.tmp
 	mv var/unidic/dict.dat.tmp var/unidic/dict.dat
 
 var/unidic/main: go/bin/ichigo-unidic
