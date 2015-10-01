@@ -3,8 +3,13 @@ package main
 import "reflect"
 import "testing"
 
-func _testPipeParse(t *testing.T, dict *Dictionary, text string, expected string, unitlen int) {
-	pipe := makePipe(dict)
+func _testPipeParse(t *testing.T, pipe *Pipe, text string, expected string, unitlen int) {
+	var output []uint8 = nil
+	if t != nil {
+		output = make([]uint8, 0, 18)
+	}
+
+	pipe.reset()
 	var start int = 0
 	for {
 		var end int = start + unitlen
@@ -13,43 +18,45 @@ func _testPipeParse(t *testing.T, dict *Dictionary, text string, expected string
 			end = len(text)
 			f = true
 		}
-		pipe.parseText([]uint8(text[start : end]))
+		buf := pipe.getTextChunkBufferAndGoAhead(end - start)
+		copy(buf, text[start : end])
+		output = _testPipeParseSub(t, pipe, output)
 		if f {
 			break
 		}
 		start += unitlen
 	}
-	pipe.parseText(nil)
-	var output []uint8 = nil
-	if t != nil {
-		output = make([]uint8, 0, 18)
-	}
-	for {
-		node := pipe.shiftMorphNode()
-		if node == nil {
-			break
-		}
-		expandMorphNode(dict, node)
-//		ns := expandMorphNode(dict, node)
-		if output != nil {
-//			for j := 0; j < len(ns); j++ {
-//				n := ns[j]
-				n := node
-				if n.rightPosid != 0 { // BOS, EOS 以外を出力
-					output = append(output, '|')
-					if n.isUnknown() {
-						output = append(output, '?')
-					}
-					output = append(output, n.text...)
-				}
-//			}
-		}
-	}
+	pipe.pushEOS()
+	output = _testPipeParseSub(t, pipe, output)
+
 	if output != nil {
 		output = append(output, '|')
 		if !reflect.DeepEqual(output, []uint8(expected)) {
 			t.Errorf("expected: %s, actual: %s", expected, output)
 		}
 	}
+}
+
+func _testPipeParseSub(t *testing.T, pipe *Pipe, output []uint8) []uint8 {
+	pipe.eatTextChunk()
+	for {
+		morphIndex := pipe.pullSmallMorph()
+		if morphIndex == -4 {
+			break
+		}
+		if morphIndex >= 0 {
+			morph := &pipe.smallMorphArray.array[morphIndex]
+			if output != nil {
+				if morph.rightPosid != 0 { // BOS, EOS 以外を出力
+					output = append(output, '|')
+					if morph.metaId == 0 {
+						output = append(output, '?')
+					}
+					output = append(output, morph.text...)
+				}
+			}
+		}
+	}
+	return output
 }
 

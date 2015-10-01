@@ -48,7 +48,7 @@ type ParallelMeta struct {
 // 連結形態素
 type CombinedMeta struct {
 	RightOffset []uint8
-	MetaId []uint32
+	MetaId []uint32 // more than 0x40000000 means ParallelMeta
 }
 
 func makeDictionary(surfaceArraySize int, morphArraySize int, metaArraySize int) *Dictionary {
@@ -183,7 +183,7 @@ func (dict *Dictionary) createCombinedMeta(surfaceTextIds []uint32, metas []uint
 	var r uint8 = 0
 	for i := 0; i < len(metas); i++ {
 		s := dict.getText(surfaceTextIds[i])
-		r += uint8(len(s))
+		r += uint8(utf8CodePointCount(s))
 		rightOffsets[i] = r
 	}
 	l := len(dict.CombinedMetaArray)

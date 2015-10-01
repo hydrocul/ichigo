@@ -4,8 +4,7 @@ package main
 
 const charIndexCount = 150
 
-func utf8CodePointLength(text []uint8, pos int) int {
-	b := text[pos]
+func utf8CodePointLength(b uint8) int {
 	if b & 0x80 == 0x00 {
 		return 1
 	} else if b & 0xE0 == 0xC0 {
@@ -16,6 +15,18 @@ func utf8CodePointLength(text []uint8, pos int) int {
 		return 4
 	} else {
 		return 0
+	}
+}
+
+func utf8CodePointCount(str []uint8) int {
+	count := 0
+	i := 0
+	for {
+		if i >= len(str) {
+			return count
+		}
+		i += utf8CodePointLength(str[i])
+		count++
 	}
 }
 

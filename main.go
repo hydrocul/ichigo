@@ -7,6 +7,7 @@ import "io"
 import "os"
 
 func main() {
+
 	eachLine := flag.Bool("each-line", false, "each line")
 	flag.Parse()
 
@@ -24,7 +25,8 @@ func main() {
 	}
 
 	dict := loadDictionary()
-	pipe := makePipe(dict)
+	pipe := new(Pipe)
+	pipe.init(dict)
 
 	reader := bufio.NewReader(fp)
 	for {
@@ -36,6 +38,7 @@ func main() {
 			var lfflag bool
 			line, lfflag = trimLF(line)
 			// line には最後の改行を含まない
+			pipe.reset()
 			{
 				pushText(pipe, line);
 				printVerbose(pipe)
@@ -80,43 +83,25 @@ func trimLF(line []uint8) ([]uint8, bool) {
 }
 
 func pushText(pipe *Pipe, text []uint8) {
-	pipe.parseText(text);
+	buf := pipe.getTextChunkBufferAndGoAhead(len(text))
+	copy(buf, text)
+	pipe.eatTextChunk()
 }
 
 func pushEOF(pipe *Pipe) {
-	pushText(pipe, nil)
+	pipe.pushEOS()
+	pipe.eatTextChunk()
 }
 
 func printVerbose(pipe *Pipe) {
 	for {
-		node := pipe.shiftMorphNode()
-		if node == nil {
+		morphIndex := pipe.pullSmallMorph()
+		if morphIndex == -4 {
 			break
 		}
-		if node.isCombined() {
-			nss := expandMorphNode(pipe.dict, node)
-			if len(nss) > 1 {
-				printFlagsOnly("<")
-				for j := 0; j < len(nss); j++ {
-					if j > 0 {
-						printFlagsOnly("-")
-					}
-					ns := nss[j]
-					for i := 0; i < len(ns); i++ {
-						n := ns[i]
-						printNode(pipe, n)
-					}
-				}
-				printFlagsOnly(">")
-			} else {
-				ns := nss[0]
-				for i := 0; i < len(ns); i++ {
-					n := ns[i]
-					printNode(pipe, n)
-				}
-			}
-		} else {
-				printNode(pipe, node)
+		if morphIndex >= 0 {
+			morph := &pipe.smallMorphArray.array[morphIndex]
+			printNode(pipe, morph)
 		}
 	}
 }
@@ -125,11 +110,13 @@ func printFlagsOnly(flags string) {
 	fmt.Printf("%s\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n", flags)
 }
 
-func printNode(pipe *Pipe, n *MorphNode) {
+func printNode(pipe *Pipe, n *SmallMorph) {
 	if n.rightPosid == 0 {
 		// BOS, EOS は出力しない
 		return
 	}
+	fmt.Printf("%s\t%s\n", n.text, n.original)
+/*
 	var flags string
 	if n.isUnknown() {
 		flags = "?"
@@ -151,6 +138,7 @@ func printNode(pipe *Pipe, n *MorphNode) {
 		n.leftPosid, n.rightPosid,
 		n.wordCost,
 		n.leftBytePos, n.leftCodePointPos, n.rightBytePos, n.rightCodePointPos)
+*/
 }
 
 func _escapeForOutput(str []uint8) []uint8 {

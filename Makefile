@@ -240,7 +240,7 @@ test-ipadic: \
 	var/ipadic/dict.dat
 	GOPATH=$(realpath .)/go ICHIGO_DICTIONARY_PATH=$(realpath .)/var/ipadic/dict.dat go test hydrocul/ichigo-test-ipadic
 
-bench-ipadic: \
+var/ichigo-test-ipadic.test: \
 	go/src/hydrocul/ichigo-test-ipadic/da.go \
 	go/src/hydrocul/ichigo-test-ipadic/utf8.go \
 	go/src/hydrocul/ichigo-test-ipadic/dict.go \
@@ -250,9 +250,14 @@ bench-ipadic: \
 	go/src/hydrocul/ichigo-test-ipadic/pipe_lib.go \
 	go/src/hydrocul/ichigo-test-ipadic/shift.go \
 	go/src/hydrocul/ichigo-test-ipadic/posid.go \
-	go/src/hydrocul/ichigo-test-ipadic/common.go \
-	var/ipadic/dict.dat
-	GOPATH=$(realpath .)/go ICHIGO_DICTIONARY_PATH=$(realpath .)/var/ipadic/dict.dat go test hydrocul/ichigo-test-ipadic -run none -bench . -benchtime 3s -benchmem | tee var/bench-ipadic.txt
+	go/src/hydrocul/ichigo-test-ipadic/common.go
+	GOPATH=$(realpath .)/go go test -c hydrocul/ichigo-test-ipadic -o var/ichigo-test-ipadic.test
+
+bench-ipadic: \
+	var/ipadic/dict.dat \
+	var/ichigo-test-ipadic.test
+	GOPATH=$(realpath .)/go ICHIGO_DICTIONARY_PATH=$(realpath .)/var/ipadic/dict.dat ./var/ichigo-test-ipadic.test -test.cpuprofile=var/cpuprofile-ipadic.out -test.bench . -test.benchtime 30s -test.benchmem | tee var/bench-ipadic.txt
+	GOPATH=$(realpath .)/go go tool pprof -list=hydrocul var/ichigo-test-ipadic.test var/cpuprofile-ipadic.out > var/cpuprofile-ipadic-list.txt
 
 go/src/hydrocul/ichigo-test-ipadic/mkdir:
 	mkdir -p go/src/hydrocul/ichigo-test-ipadic
@@ -308,7 +313,7 @@ test-unidic: \
 	var/unidic/dict.dat
 	GOPATH=$(realpath .)/go ICHIGO_DICTIONARY_PATH=$(realpath .)/var/unidic/dict.dat go test hydrocul/ichigo-test-unidic
 
-bench-unidic: \
+var/ichigo-test-unidic.test: \
 	go/src/hydrocul/ichigo-test-unidic/da.go \
 	go/src/hydrocul/ichigo-test-unidic/utf8.go \
 	go/src/hydrocul/ichigo-test-unidic/dict.go \
@@ -318,9 +323,14 @@ bench-unidic: \
 	go/src/hydrocul/ichigo-test-unidic/pipe_lib.go \
 	go/src/hydrocul/ichigo-test-unidic/shift.go \
 	go/src/hydrocul/ichigo-test-unidic/posid.go \
-	go/src/hydrocul/ichigo-test-unidic/common.go \
-	var/unidic/dict.dat
-	GOPATH=$(realpath .)/go ICHIGO_DICTIONARY_PATH=$(realpath .)/var/unidic/dict.dat go test hydrocul/ichigo-test-unidic -run none -bench . -benchtime 3s -benchmem | tee var/bench-unidic.txt
+	go/src/hydrocul/ichigo-test-unidic/common.go
+	GOPATH=$(realpath .)/go go test -c hydrocul/ichigo-test-unidic -o var/ichigo-test-unidic.test
+
+bench-unidic: \
+	var/unidic/dict.dat \
+	var/ichigo-test-unidic.test
+	GOPATH=$(realpath .)/go ICHIGO_DICTIONARY_PATH=$(realpath .)/var/unidic/dict.dat ./var/ichigo-test-unidic.test -test.cpuprofile=var/cpuprofile-unidic.out -test.bench . -test.benchtime 30s -test.benchmem | tee var/bench-unidic.txt
+	GOPATH=$(realpath .)/go go tool pprof -list=hydrocul var/ichigo-test-unidic.test var/cpuprofile-unidic.out > var/cpuprofile-unidic-list.txt
 
 go/src/hydrocul/ichigo-test-unidic/mkdir:
 	mkdir -p go/src/hydrocul/ichigo-test-unidic
