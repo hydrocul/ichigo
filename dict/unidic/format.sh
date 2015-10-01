@@ -33,7 +33,7 @@ perl -Mutf8 -MEncode -nle '
     }
     $pron = encode_utf8($hiragana);
 
-    print "$F[0]\t$F[1]\t$F[2]\t$F[3]\t$posname\t$F[14]\t\t$pron\t$F[11]";
+    print "$F[0]\t$F[1]\t$F[2]\t$F[3]\t$posname\t$F[14]\t-\t$pron\t$F[11]";
 '
 
 

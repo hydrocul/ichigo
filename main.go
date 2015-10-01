@@ -107,7 +107,7 @@ func printVerbose(pipe *Pipe) {
 }
 
 func printFlagsOnly(flags string) {
-	fmt.Printf("%s\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n", flags)
+	fmt.Printf("%s\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n", flags)
 }
 
 func printNode(pipe *Pipe, n *SmallMorph) {
@@ -115,30 +115,45 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 		// BOS, EOS は出力しない
 		return
 	}
-	fmt.Printf("%s\t%s\n", n.text, n.original)
-/*
 	var flags string
-	if n.isUnknown() {
+	if n.metaId == 0 {
 		flags = "?"
 	} else {
-		flags = ""
+		flags = "-"
 	}
-	surface := pipe.getSurface(n)
-	posname := pipe.getPosname(n)
-	meta := pipe.dict.MetaArray[n.metaId]
-	base := pipe.dict.getText(meta.BaseId)
-	kana := pipe.dict.getText(meta.KanaId)
-	pron := pipe.dict.getText(meta.PronId)
-	lemm := pipe.dict.getText(meta.LemmaId)
-	fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+	original := n.original
+	surface := n.text
+	leftPosname := fmt.Sprintf("L-%d", n.leftPosid) // TODO
+	rightPosname := fmt.Sprintf("R-%d", n.rightPosid) // TODO
+	var posname []uint8
+	var base []uint8
+	var kana []uint8
+	var pron []uint8
+	var lemma []uint8
+	if n.metaId <= 0xFFFFFFFF {
+		dict := pipe.dict
+		meta := dict.MetaArray[n.metaId]
+		posname = dict.getText(meta.PosnameId)
+		base = dict.getText(meta.BaseId)
+		kana = dict.getText(meta.KanaId)
+		pron = dict.getText(meta.PronId)
+		lemma = dict.getText(meta.LemmaId)
+	} else {
+		posname = hyphenText
+		base = surface
+		kana = hyphenText
+		pron = hyphenText
+		lemma = surface
+	}
+	fmt.Printf("%s\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\n",
 		flags,
-		_escapeForOutput(n.text),
+		_escapeForOutput(original),
+		n.startBytePos, n.endBytePos, n.startCodePointPos, n.endCodePointPos,
 		_escapeForOutput(surface),
-		posname, base, kana, pron, lemm,
-		n.leftPosid, n.rightPosid,
-		n.wordCost,
-		n.leftBytePos, n.leftCodePointPos, n.rightBytePos, n.rightCodePointPos)
-*/
+		leftPosname, rightPosname,
+		n.wordCost, n.totalCost,
+		posname,
+		base, kana, pron, lemma)
 }
 
 func _escapeForOutput(str []uint8) []uint8 {

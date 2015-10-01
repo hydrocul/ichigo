@@ -13,6 +13,7 @@ const morphResultStackSize = 32
 const pullingOldestMorphNodeArraySize = 64
 
 var nullText []uint8 = []uint8("")
+var hyphenText []uint8 = []uint8("-")
 
 ////////////////////////////////////////////////////////////////////////////////
 

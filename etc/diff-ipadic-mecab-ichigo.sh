@@ -72,11 +72,11 @@ cat $tmpdir/mecab.raw | perl -Mutf8 -MEncode -nle '
 
 cat $tmpdir/ichigo.raw | perl -nle '
     @F = split(/\t/, $_);
-    $surface = $F[2];
-    $posname = $F[3];
-    $base = $F[4];
-    $kana = $F[5];
-    $pron = $F[6];
+    $surface = $F[6];
+    $posname = $F[11];
+    $base = $F[12];
+    $kana = $F[13];
+    $pron = $F[14];
     print "$surface\t$posname\t$base\t$kana\t$pron";
 ' > $tmpdir/ichigo.txt
 
