@@ -130,7 +130,7 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 	var kana []uint8
 	var pron []uint8
 	var lemma []uint8
-	if n.metaId <= 0xFFFFFFFF {
+	if n.metaId < 0xFFFFFFFF {
 		dict := pipe.dict
 		meta := dict.MetaArray[n.metaId]
 		posname = dict.getText(meta.PosnameId)

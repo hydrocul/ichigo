@@ -357,7 +357,7 @@ func (pipe *Pipe) _createOneCharUnknownMorphNode(text []uint8,
 	node.leftPosid  = unigramUnknownLeftPosid
 	node.rightPosid = unigramUnknownRightPosid
 	node.wordCost   = unigramUnknownWordCost
-	node.metaId     = 0
+	node.metaId     = 0xFFFFFFFF
 	node.prev       = -1
 	node.totalCost  = unigramUnknownWordCost
 	return ni
