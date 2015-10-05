@@ -14,6 +14,7 @@ const pullingOldestMorphNodeArraySize = 64
 
 var nullText []uint8 = []uint8("")
 var hyphenText []uint8 = []uint8("-")
+var hyphenTextStr string = "-"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -619,21 +620,21 @@ func (pipe *Pipe) _expandResultCombined(node *MorphNode) {
 		surfaceText = node.text
 	}
 	for i := 0; i < len(metas); i++ {
-		var startOffset uint8
+		var startCodePoint uint8
 		if i == 0 {
-			startOffset = 0
+			startCodePoint = 0
 		} else {
-			startOffset = combinedMeta.RightOffset[i - 1]
+			startCodePoint = combinedMeta.RightOffset[i - 1]
 		}
-		var endOffset uint8 = combinedMeta.RightOffset[i]
+		var endCodePoint uint8 = combinedMeta.RightOffset[i]
 
 		stackIndex := int(pipe.morphResultStack.topIndex) + len(metas) - i
 		ni := pipe.morphNodeArray.alloc()
 		pipe.morphResultStack.stack[stackIndex] = int16(ni + 0x4000)
 		n := &pipe.morphNodeArray.array[ni]
 		n.counter = 1
-		startCodePoint := _textCodePointPosToBytePos(surfaceText, startOffset)
-		endCodePoint   := _textCodePointPosToBytePos(surfaceText, endOffset)
+		startOffset := _textBytePosToCodePointPos(surfaceText, startCodePoint)
+		endOffset := _textBytePosToCodePointPos(surfaceText, endCodePoint)
 		originalBytePosOffset := node.leftOriginalBytePos[startCodePoint] - node.leftOriginalBytePos[0]
 		n.textChunkOffset = node.textChunkOffset + int(originalBytePosOffset)
 		n.text = surfaceText[startOffset : endOffset]
@@ -661,9 +662,9 @@ func (pipe *Pipe) _expandResultCombined(node *MorphNode) {
 			n.leftPosid = 0xFFFF
 		}
 		if i == len(metas) - 1 {
-			n.rightPosid = 0xFFFF
-		} else {
 			n.rightPosid = node.rightPosid
+		} else {
+			n.rightPosid = 0xFFFF
 		}
 		if i == 0 {
 			n.wordCost = node.wordCost
@@ -677,20 +678,6 @@ func (pipe *Pipe) _expandResultCombined(node *MorphNode) {
 	pipe.morphResultStack.stack[pipe.morphResultStack.topIndex] = -3
 	pipe.morphResultStack.topIndex += len(metas) + 1
 	pipe.morphResultStack.stack[pipe.morphResultStack.topIndex] = -1
-}
-
-func _textCodePointPosToBytePos(surfaceText []uint8, bytePos uint8) uint8 {
-	var bp uint8 = 0
-	var cp uint8 = 0
-	for {
-		if bp >= bytePos {
-			return cp
-		}
-		u1 := surfaceText[bp]
-		l := uint8(utf8CodePointLength(u1))
-		bp += l
-		cp++
-	}
 }
 
 func _zeroLengthMorphCodePointOffset(combinedMeta *CombinedMeta, index int) uint8 {

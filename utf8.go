@@ -74,3 +74,31 @@ func indexToCharByte(buf []uint8) []uint8 {
 	return ret;
 }
 
+func _textBytePosToCodePointPos(surfaceText []uint8, codePointPos uint8) uint8 {
+	var bp uint8 = 0
+	for {
+		if codePointPos == 0 {
+			return bp
+		}
+		u1 := surfaceText[bp]
+		l := uint8(utf8CodePointLength(u1))
+		bp += l
+		codePointPos--
+	}
+}
+
+func _textCodePointPosToBytePos(surfaceText []uint8, bytePos uint8) uint8 {
+	var bp uint8 = 0
+	var cp uint8 = 0
+	for {
+		if bp >= bytePos {
+			return cp
+		}
+		u1 := surfaceText[bp]
+		l := uint8(utf8CodePointLength(u1))
+		bp += l
+		cp++
+	}
+}
+
+

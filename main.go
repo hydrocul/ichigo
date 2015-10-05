@@ -123,8 +123,18 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 	}
 	original := n.original
 	surface := n.text
-	leftPosname := fmt.Sprintf("L-%d", n.leftPosid) // TODO
-	rightPosname := fmt.Sprintf("R-%d", n.rightPosid) // TODO
+	var leftPosname string
+	var rightPosname string
+	if n.leftPosid == 0xFFFF {
+		leftPosname = hyphenTextStr
+	} else {
+		leftPosname = fmt.Sprintf("L-%d", n.leftPosid) // TODO
+	}
+	if n.rightPosid == 0xFFFF {
+		rightPosname = hyphenTextStr
+	} else {
+		rightPosname = fmt.Sprintf("R-%d", n.rightPosid) // TODO
+	}
 	var posname []uint8
 	var base []uint8
 	var kana []uint8
