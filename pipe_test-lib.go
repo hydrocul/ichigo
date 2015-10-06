@@ -41,7 +41,7 @@ func _testPipeParseSub(t *testing.T, pipe *Pipe, output []uint8) []uint8 {
 	pipe.eatTextChunk()
 	for {
 		morphIndex := pipe.pullSmallMorph()
-		if morphIndex == -4 {
+		if morphIndex == -8 {
 			break
 		}
 		if morphIndex >= 0 {

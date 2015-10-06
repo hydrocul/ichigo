@@ -94,12 +94,36 @@ func pushEOF(pipe *Pipe) {
 }
 
 func printVerbose(pipe *Pipe) {
+	const stackSize = 16
+	var stack [stackSize]int16
+	var stackTop int = 0
 	for {
 		morphIndex := pipe.pullSmallMorph()
-		if morphIndex == -4 {
+		if morphIndex == -8 {
 			break
 		}
-		if morphIndex >= 0 {
+		if morphIndex == -1 {
+			if stackTop == stackSize {
+				panic("no free space")
+			}
+			stack[stackTop] = morphIndex
+			stackTop++
+		} else if morphIndex == -2 {
+			if stackTop == stackSize {
+				panic("no free space")
+			}
+			stack[stackTop] = morphIndex
+			stackTop++
+			printFlagsOnly("%<")
+		} else if morphIndex == -5 {
+			stackTop--
+			if stackTop > 0 && stack[stackTop - 1] == -2 {
+				printFlagsOnly("%-")
+			}
+		} else if morphIndex == -6 {
+			stackTop--
+			printFlagsOnly("%>")
+		} else {
 			morph := &pipe.smallMorphArray.array[morphIndex]
 			printNode(pipe, morph)
 		}
@@ -115,6 +139,7 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 		// BOS, EOS は出力しない
 		return
 	}
+
 	var flags string
 	if n.metaId == 0 {
 		flags = "?"
@@ -163,7 +188,7 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 		leftPosname, rightPosname,
 		n.wordCost, n.totalCost,
 		posname,
-		base, kana, pron, lemma)
+		_escapeForOutput(base), kana, pron, _escapeForOutput(lemma))
 }
 
 func _escapeForOutput(str []uint8) []uint8 {

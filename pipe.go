@@ -131,14 +131,14 @@ func (pipe *Pipe) eatTextChunk() {
 	}
 }
 
-// これ以上形態素を取り出せない場合は -4 を返す
-// -4 を返すまで繰り返し呼び出し、返り値を使用し終えないと、
+// これ以上形態素を取り出せない場合は -8 を返す
+// -8 を返すまで繰り返し呼び出し、返り値を使用し終えないと、
 // 次に getTextChunkBufferAndGoAhead を呼び出してはいけない
 func (pipe *Pipe) pullSmallMorph() int16 {
 	pipe._freeLastSmallMorph()
 
 	if ! pipe._pushToStackIfEmpty() {
-		return -4
+		return -8
 	}
 
 	return pipe._expandResultStack()
@@ -604,7 +604,7 @@ func (pipe *Pipe) _expandResultParallel(node *MorphNode) {
 		n.prev = -1
 		n.totalCost = node.totalCost
 	}
-	pipe.morphResultStack.stack[pipe.morphResultStack.topIndex] = -3
+	pipe.morphResultStack.stack[pipe.morphResultStack.topIndex] = -6
 	pipe.morphResultStack.topIndex += len(metas) + 1
 	pipe.morphResultStack.stack[pipe.morphResultStack.topIndex] = -2
 }
@@ -675,7 +675,7 @@ func (pipe *Pipe) _expandResultCombined(node *MorphNode) {
 		n.prev = -1
 		n.totalCost = node.totalCost
 	}
-	pipe.morphResultStack.stack[pipe.morphResultStack.topIndex] = -3
+	pipe.morphResultStack.stack[pipe.morphResultStack.topIndex] = -5
 	pipe.morphResultStack.topIndex += len(metas) + 1
 	pipe.morphResultStack.stack[pipe.morphResultStack.topIndex] = -1
 }
@@ -1001,7 +1001,8 @@ type MorphResultStack struct {
 
 	// -1: 連結形態素フラグ
 	// -2: 共存形態素フラグ
-	// -3: 連結形態素終了フラグまたは共存形態素終了フラグ
+	// -5: 連結形態素終了フラグ
+	// -6: 共存形態素終了フラグ
 	// >= 0x4000: MorphNode
 
 	// A -- B ------ E
@@ -1009,13 +1010,13 @@ type MorphResultStack struct {
 	//    - C - D -
 	// 
 	// return A
-	// -3, CD, B; return -2
-	// -3, CD; return B
-	// -3, -3, D, C; return -1
-	// -3, -3, D; return C
-	// -3, -3; return D
-	// -3; return -3
-	// return -3
+	// -5, CD, B; return -2
+	// -5, CD; return B
+	// -5, -5, D, C; return -1
+	// -5, -5, D; return C
+	// -5, -5; return D
+	// -5; return -5
+	// return -5
 	// return E
 
 }
