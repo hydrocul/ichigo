@@ -20,47 +20,16 @@ fi
 cat $INPUT | ./ichigo-unidic > $tmpdir/ichigo.raw || exit $?
 cat $INPUT | ./etc/mecab-unidic > $tmpdir/mecab.raw || exit $?
 
-cat $tmpdir/mecab.raw | perl -Mutf8 -MEncode -nle '
+cat $tmpdir/mecab.raw | perl -nle '
     @F = split(/\t/, $_);
-
-    $surface = $F[0];
-    if (@F == 1) {
-        $posname = "";
-        $lemma = "";
-        $pron = "";
-    } else {
-        $posname = $F[4];
-        $posname = "$posname:$F[5]" if ($F[5] ne "");
-        $posname = "$posname:$F[6]" if ($F[6] ne "");
-        $posname =~ s/-/,/g;
-        $lemma = $F[3];
-        $pron = $F[1];
-    }
-
-    $pron = decode_utf8($pron);
-    $lenPron = length($pron);
-    $hiragana = "";
-    for ($i = 0; $i < $lenPron; $i++) {
-      $c = substr($pron, $i, 1);
-      $ch = ord($c);
-      if ($ch >= 0x30A1 && $ch <= 0x30F6) {
-        $hiragana = $hiragana . chr($ch - 0x60);
-      } else {
-        $hiragana = $hiragana . $c;
-      }
-    }
-    $pron = encode_utf8($hiragana);
-
-    print "$surface\t$posname\t$lemma\t$pron";
+    print "$F[6]\t$F[11]\t$F[14]\t$F[15]";
 ' > $tmpdir/mecab.txt
 
 cat $tmpdir/ichigo.raw | perl -nle '
     @F = split(/\t/, $_);
-    $surface = $F[6];
-    $posname = $F[11];
-    $lemma = $F[15];
-    $pron = $F[14];
-    print "$surface\t$posname\t$lemma\t$pron";
+    $F[11] =~ s/\((.+);.*\)$/$1/g;
+    $F[11] =~ s/\((.+)\)$/$1/g;
+    print "$F[6]\t$F[11]\t$F[14]\t$F[15]";
 ' > $tmpdir/ichigo.txt
 
 diff -u $tmpdir/mecab.txt $tmpdir/ichigo.txt

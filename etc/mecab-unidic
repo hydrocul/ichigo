@@ -1,5 +1,36 @@
 #!/bin/sh
 
-mecab -d /usr/local/lib/mecab/dic/unidic "$@"
+mecab -d /usr/local/lib/mecab/dic/unidic -O '' --node-format='-\t%M\t%ps\t%pe\t-\t-\t%M\tL-%phl\tR-%phr\t%c\t%pc\t%f[0],%f[1],%f[2],%f[3]:%f[4]:%f[5]\t%f[10]\t-\t%f[9]\t%f[7]\n' |
+perl -Mutf8 -MEncode -nle '
+    sub toHiragana {
+      ($src) = @_;
+      $src = decode_utf8($src);
+      $lenKana = length($src);
+      $hiragana = "";
+      for ($i = 0; $i < $lenKana; $i++) {
+        $c = substr($src, $i, 1);
+        $ch = ord($c);
+        if ($ch >= 0x30A1 && $ch <= 0x30F6) {
+          $hiragana = $hiragana . chr($ch - 0x60);
+        } else {
+          $hiragana = $hiragana . $c;
+        }
+      }
+      return encode_utf8($hiragana);
+    }
+
+    @F = split(/\t/, $_);
+    $F[13] = toHiragana($F[13]);
+    $F[14] = toHiragana($F[14]);
+
+    $F[11] =~ s/-/,/g;
+
+    $F[11] =~ s/,,+/,/g;
+    $F[11] =~ s/,:/:/g;
+    $F[11] =~ s/:+$//g;
+    $F[11] = "-" if $F[11] eq "";
+
+    print join("\t", @F);
+'
 
 

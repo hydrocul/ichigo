@@ -49,7 +49,7 @@ func _testPipeParseSub(t *testing.T, pipe *Pipe, output []uint8) []uint8 {
 			if output != nil {
 				if morph.rightPosid != 0 { // BOS, EOS 以外を出力
 					output = append(output, '|')
-					if morph.metaId == 0 {
+					if morph.metaId == 0xFFFFFFFF {
 						output = append(output, '?')
 					}
 					output = append(output, morph.text...)

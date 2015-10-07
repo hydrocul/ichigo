@@ -131,7 +131,7 @@ func printVerbose(pipe *Pipe) {
 }
 
 func printFlagsOnly(flags string) {
-	fmt.Printf("%s\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n", flags)
+	fmt.Printf("%s\t-\t-\t-\t-\t-\t-\t-\t-\t-\t-\t-\t-\t-\t-\t-\n", flags)
 }
 
 func printNode(pipe *Pipe, n *SmallMorph) {
@@ -141,7 +141,7 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 	}
 
 	var flags string
-	if n.metaId == 0 {
+	if n.metaId == 0xFFFFFFFF {
 		flags = "?"
 	} else {
 		flags = "-"
@@ -181,14 +181,14 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 		lemma = surface
 	}
 	fmt.Printf("%s\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\n",
-		flags,
-		_escapeForOutput(original),
-		n.startBytePos, n.endBytePos, n.startCodePointPos, n.endCodePointPos,
-		_escapeForOutput(surface),
-		leftPosname, rightPosname,
-		n.wordCost, n.totalCost,
-		posname,
-		_escapeForOutput(base), kana, pron, _escapeForOutput(lemma))
+		flags, // 0
+		_escapeForOutput(original), // 1
+		n.startBytePos, n.endBytePos, n.startCodePointPos, n.endCodePointPos, // 2 - 5
+		_escapeForOutput(surface), // 6
+		leftPosname, rightPosname, // 7, 8
+		n.wordCost, n.totalCost, // 9, 10
+		posname, // 11
+		_escapeForOutput(base), kana, pron, _escapeForOutput(lemma)) // 12 - 15
 }
 
 func _escapeForOutput(str []uint8) []uint8 {
