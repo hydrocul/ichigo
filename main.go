@@ -97,33 +97,48 @@ func printVerbose(pipe *Pipe) {
 	const stackSize = 16
 	var stack [stackSize]int16
 	var stackTop int = 0
+	var prevComEnd bool = false
 	for {
 		morphIndex := pipe.pullSmallMorph()
 		if morphIndex == -8 {
 			break
 		}
 		if morphIndex == -1 {
-			if stackTop == stackSize {
-				panic("no free space")
-			}
-			stack[stackTop] = morphIndex
-			stackTop++
-		} else if morphIndex == -2 {
-			if stackTop == stackSize {
-				panic("no free space")
-			}
-			stack[stackTop] = morphIndex
-			stackTop++
-			printFlagsOnly("%<")
-		} else if morphIndex == -5 {
-			stackTop--
-			if stackTop > 0 && stack[stackTop - 1] == -2 {
+			// 連結形態素開始
+			if prevComEnd && stackTop > 0 && stack[stackTop - 1] == -2 {
 				printFlagsOnly("%-")
 			}
-		} else if morphIndex == -6 {
+			if stackTop == stackSize {
+				panic("no free space")
+			}
+			stack[stackTop] = morphIndex
+			stackTop++
+			prevComEnd = false
+		} else if morphIndex == -2 {
+			// 共存形態素開始
+			if prevComEnd && stackTop > 0 && stack[stackTop - 1] == -2 {
+				printFlagsOnly("%-")
+			}
+			if stackTop == stackSize {
+				panic("no free space")
+			}
+			stack[stackTop] = morphIndex
+			stackTop++
+			prevComEnd = false
+			printFlagsOnly("%<")
+		} else if morphIndex == -5 {
+			// 連結形態素終了
 			stackTop--
+			prevComEnd = true
+		} else if morphIndex == -6 {
+			// 共存形態素終了
+			stackTop--
+			prevComEnd = false
 			printFlagsOnly("%>")
 		} else {
+			if prevComEnd && stackTop > 0 && stack[stackTop - 1] == -2 {
+				printFlagsOnly("%-")
+			}
 			morph := &pipe.smallMorphArray.array[morphIndex]
 			printNode(pipe, morph)
 		}
