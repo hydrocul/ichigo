@@ -15,7 +15,14 @@ ichigo-unidic: var/unidic/boot.pl
 
 all: test ichigo-ipadic ichigo-unidic
 
-test: test1 test-ipadic test-unidic bench-ipadic bench-unidic
+test: \
+	test1 \
+	test-ipadic \
+	test-unidic \
+	bench-ipadic \
+	bench-unidic \
+	wagahai-ipadic \
+	wagahai-unidic
 
 
 
@@ -468,4 +475,18 @@ go/src/hydrocul/ichigo-unidic/common.go: common.go go/src/hydrocul/ichigo-unidic
 
 ################################################################################
 
+wagahai-ipadic: etc/wagahai/ipadic-expected.txt var/wagahai-ipadic-actual.txt
+	git diff --no-index etc/wagahai/ipadic-expected.txt var/wagahai-ipadic-actual.txt && echo OK
 
+var/wagahai-ipadic-actual.txt: etc/wagahai/wagahai.txt ichigo-ipadic etc/wagahai/filter.sh
+	cat etc/wagahai/wagahai.txt | ./ichigo-ipadic | sh ./etc/wagahai/filter.sh > var/wagahai-ipadic-actual.txt
+
+wagahai-unidic: etc/wagahai/unidic-expected.txt var/wagahai-unidic-actual.txt
+	git diff --no-index etc/wagahai/unidic-expected.txt var/wagahai-unidic-actual.txt && echo OK
+
+var/wagahai-unidic-actual.txt: etc/wagahai/wagahai.txt ichigo-unidic etc/wagahai/filter.sh
+	cat etc/wagahai/wagahai.txt | ./ichigo-unidic | sh ./etc/wagahai/filter.sh > var/wagahai-unidic-actual.txt
+
+
+
+################################################################################
