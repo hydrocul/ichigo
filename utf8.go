@@ -30,6 +30,33 @@ func utf8CodePointCount(str []uint8) int {
 	}
 }
 
+func strCodePointMatching(str []uint8, offset int, utf8Code [4]uint8) bool {
+	b := str[offset]
+	if b != utf8Code[0] {
+		return false
+	}
+	if b & 0x80 == 0x00 {
+		return true
+	} else if b & 0xE0 == 0xC0 {
+		if offset + 1 >= len(str) {
+			return false
+		}
+		return str[offset + 1] == utf8Code[1]
+	} else if b & 0xF0 == 0xE0 {
+		if offset + 2 >= len(str) {
+			return false
+		}
+		return str[offset + 1] == utf8Code[1] && str[offset + 2] == utf8Code[2]
+	} else if b & 0xF8 == 0xF0 {
+		if offset + 3 >= len(str) {
+			return false
+		}
+		return str[offset + 1] == utf8Code[1] && str[offset + 2] == utf8Code[2] && str[offset + 3] == utf8Code[3]
+	} else {
+		return false
+	}
+}
+
 func charByteToIndex(b uint8) uint8 {
 	if b <= 0x20 {
 		return 0x01

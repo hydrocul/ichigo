@@ -216,7 +216,13 @@ func _escapeForOutput(str []uint8) []uint8 {
 		} else if ch == '\\' {
 			output = append(output, '\\', '\\')
 		} else {
-			output = append(output, ch)
+			if strCodePointMatching(str, i, [4]uint8{0xE3, 0x80, 0x80, 0}) {
+				s := fmt.Sprintf("\\x%02x\\x%02x\\x%02x", ch, str[i + 1], str[i + 2])
+				output = append(output, []uint8(s)...)
+				i += 2
+			} else {
+				output = append(output, ch)
+			}
 		}
 	}
 	return output
