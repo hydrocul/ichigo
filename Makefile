@@ -70,7 +70,10 @@ var/ipadic/dict.dat: var/ipadic/mkdir var/ipadic/matrix.txt var/ipadic/dict-norm
 var/ipadic/main: go/bin/ichigo-ipadic
 	cp go/bin/ichigo-ipadic var/ipadic/main
 
-var/ipadic/boot.pl: var/ipadic/mkdir boot.pl var/ipadic/dict.dat var/ipadic/main generate-boot.sh
+var/ipadic/graph.pl: graph.pl
+	cp graph.pl var/ipadic/graph.pl
+
+var/ipadic/boot.pl: var/ipadic/mkdir boot.pl var/ipadic/dict.dat var/ipadic/main var/ipadic/graph.pl generate-boot.sh
 	sh generate-boot.sh var/ipadic > var/ipadic/boot.pl
 
 
@@ -109,7 +112,10 @@ var/unidic/dict.dat: var/unidic/mkdir var/unidic/matrix.txt var/unidic/dict-norm
 var/unidic/main: go/bin/ichigo-unidic
 	cp go/bin/ichigo-unidic var/unidic/main
 
-var/unidic/boot.pl: var/unidic/mkdir boot.pl var/unidic/dict.dat var/unidic/main generate-boot.sh
+var/unidic/graph.pl: graph.pl
+	cp graph.pl var/unidic/graph.pl
+
+var/unidic/boot.pl: var/unidic/mkdir boot.pl graph.pl var/unidic/dict.dat var/unidic/main var/unidic/graph.pl generate-boot.sh
 	sh generate-boot.sh var/unidic > var/unidic/boot.pl
 
 

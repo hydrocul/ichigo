@@ -8,7 +8,9 @@ import "os"
 
 func main() {
 
-	eachLine := flag.Bool("each-line", false, "each line")
+	eachLineFlag := flag.Bool("each-line", false, "each line")
+	graphFlag := flag.Bool("graph", false, "graph")
+
 	flag.Parse()
 
 	var fp *os.File
@@ -26,7 +28,7 @@ func main() {
 
 	dict := loadDictionary()
 	pipe := new(Pipe)
-	pipe.init(dict)
+	pipe.init(dict, *graphFlag)
 
 	reader := bufio.NewReader(fp)
 	for {
@@ -34,18 +36,18 @@ func main() {
 		if err != nil && err != io.EOF {
 			panic(err)
 		}
-		if *eachLine {
+		if *eachLineFlag {
 			var lfflag bool
 			line, lfflag = trimLF(line)
 			// line には最後の改行を含まない
 			pipe.reset()
 			{
 				pushText(pipe, line);
-				printVerbose(pipe)
+				printVerbose(pipe, *graphFlag)
 			}
 			{
 				pushEOF(pipe);
-				printVerbose(pipe)
+				printVerbose(pipe, *graphFlag)
 			}
 			if lfflag {
 				fmt.Printf("\n")
@@ -57,11 +59,11 @@ func main() {
 			{
 				// line には最後の改行を含む
 				pushText(pipe, line);
-				printVerbose(pipe)
+				printVerbose(pipe, *graphFlag)
 			}
 			if err == io.EOF {
 				pushEOF(pipe);
-				printVerbose(pipe)
+				printVerbose(pipe, *graphFlag)
 				break
 			}
 		}
@@ -93,7 +95,7 @@ func pushEOF(pipe *Pipe) {
 	pipe.eatTextChunk()
 }
 
-func printVerbose(pipe *Pipe) {
+func printVerbose(pipe *Pipe, graphFlag bool) {
 	const stackSize = 16
 	var stack [stackSize]int16
 	var stackTop int = 0
@@ -163,18 +165,8 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 	}
 	original := n.original
 	surface := n.text
-	var leftPosname string
-	var rightPosname string
-	if n.leftPosid == 0xFFFF {
-		leftPosname = hyphenTextStr
-	} else {
-		leftPosname = fmt.Sprintf("L-%d", n.leftPosid) // TODO
-	}
-	if n.rightPosid == 0xFFFF {
-		rightPosname = hyphenTextStr
-	} else {
-		rightPosname = fmt.Sprintf("R-%d", n.rightPosid) // TODO
-	}
+	leftPosname := pipe.dict.getLeftPosname(n.leftPosid)
+	rightPosname := pipe.dict.getRightPosname(n.rightPosid)
 	var posname []uint8
 	var base []uint8
 	var kana []uint8
@@ -197,16 +189,16 @@ func printNode(pipe *Pipe, n *SmallMorph) {
 	}
 	fmt.Printf("%s\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\n",
 		flags, // 0
-		_escapeForOutput(original), // 1
+		escapeForOutput(original), // 1
 		n.startBytePos, n.endBytePos, n.startCodePointPos, n.endCodePointPos, // 2 - 5
-		_escapeForOutput(surface), // 6
+		escapeForOutput(surface), // 6
 		leftPosname, rightPosname, // 7, 8
 		n.wordCost, n.totalCost, // 9, 10
 		posname, // 11
-		_escapeForOutput(base), kana, pron, _escapeForOutput(lemma)) // 12 - 15
+		escapeForOutput(base), kana, pron, escapeForOutput(lemma)) // 12 - 15
 }
 
-func _escapeForOutput(str []uint8) []uint8 {
+func escapeForOutput(str []uint8) []uint8 {
 	output := make([]uint8, 0, len(str) * 5 / 4 + 1)
 	for i := 0; i < len(str); i++ {
 		ch := str[i]

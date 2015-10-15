@@ -22,6 +22,8 @@ type Pipe struct {
 
 	dict *Dictionary
 
+	graphFlag bool
+
 	textChunk [2 * maxTextChunkLength]uint8
 
 	// text chunk の中で SmallMorph を取得し終えている最後の位置
@@ -51,8 +53,9 @@ type Pipe struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-func (pipe *Pipe) init(dict *Dictionary) {
+func (pipe *Pipe) init(dict *Dictionary, graphFlag bool) {
 	pipe.dict = dict
+	pipe.graphFlag = graphFlag
 	pipe.startOffset = 0
 	pipe.currOffset = 0
 	pipe.endOffset = 0
@@ -65,6 +68,9 @@ func (pipe *Pipe) init(dict *Dictionary) {
 	pipe.morphResultStack.init()
 
 	bosNodeIndex := pipe._createBOSEOSMorphNode(0, 0)
+	if pipe.graphFlag {
+		pipe._outputMorphNode(bosNodeIndex)
+	}
 	bosNode := &pipe.morphNodeArray.array[bosNodeIndex]
 	bosNode.counter++
 	newMorphPathIndex := pipe.morphPathArray.alloc()
@@ -89,6 +95,9 @@ func (pipe *Pipe) reset() {
 	pipe.morphResultStack.reset()
 
 	bosNodeIndex := pipe._createBOSEOSMorphNode(0, 0)
+	if pipe.graphFlag {
+		pipe._outputMorphNode(bosNodeIndex)
+	}
 	bosNode := &pipe.morphNodeArray.array[bosNodeIndex]
 	bosNode.counter++
 	newMorphPathIndex := pipe.morphPathArray.alloc()
@@ -389,10 +398,14 @@ func (pipe *Pipe) _createBOSEOSMorphNode(originalBytePos uint32, originalCodePoi
 func (pipe *Pipe) _appendToNewPath(currPath *MorphPath, newMorphNodeIndex int, newMorphPath *MorphPath) {
 	node := &pipe.morphNodeArray.array[newMorphNodeIndex]
 	pipe._findMinimumPath(currPath, node)
+	if pipe.graphFlag {
+		pipe._outputMorphNode(newMorphNodeIndex)
+	}
+	node.counter++
+
 	if newMorphPath.builtNodeCount >= builtNodeCountPerPath {
 		panic("no free space")
 	}
-	node.counter++
 	newMorphPath.builtNodes[newMorphPath.builtNodeCount] = newMorphNodeIndex
 	newMorphPath.builtNodeCount++
 }
@@ -432,6 +445,31 @@ func (pipe *Pipe) _freeLattice(lastMorphNodeIndex int) {
 			break
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ラティスのビジュアル出力
+
+func (pipe *Pipe) _outputMorphNode(morphNodeIndex int) {
+	node := &pipe.morphNodeArray.array[morphNodeIndex]
+	var prevId int
+	if node.prev < 0 {
+		prevId = -1
+	} else {
+		prevNode := &pipe.morphNodeArray.array[node.prev]
+		prevId = prevNode.id
+	}
+	if node.text == nil {
+		node.text = pipe.dict.getText(node.surfaceTextId)
+	}
+	fmt.Printf("g\t%d\t%d\t%s\t%s\t%s\t%d\t%d\n",
+		node.id,
+		prevId,
+		escapeForOutput(node.text),
+		pipe.dict.getLeftPosname(node.leftPosid),
+		pipe.dict.getRightPosname(node.rightPosid),
+		node.wordCost,
+		node.totalCost)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -848,6 +886,8 @@ type MorphNode struct {
 	// 0: 未使用
 	// >0: 使用中
 
+	id int
+
 	// 開始位置の text chunk の中でのオフセット
 	textChunkOffset int
 
@@ -876,6 +916,7 @@ type MorphNodeArray struct {
 	array [morphNodeArraySize]MorphNode
 	freeIndex int
 	endIndex int
+	nextId int
 }
 
 func (arr *MorphNodeArray) init() {
@@ -902,6 +943,8 @@ func (arr *MorphNodeArray) alloc() int {
 			if arr.endIndex <= index {
 				arr.endIndex = index + 1
 			}
+			arr.array[index].id = arr.nextId
+			arr.nextId++
 			return index
 		}
 		index++

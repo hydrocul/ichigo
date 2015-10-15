@@ -4,7 +4,7 @@ if ! which perl >/dev/null; then
     exit 1
 fi
 
-sha1=`cat $1/dict.dat $1/main | sha1sum -b | cut -b-40`
+sha1=`cat $1/dict.dat $1/main $1/graph.pl | sha1sum -b | cut -b-40`
 
 echo -n "#!"
 which perl
@@ -18,5 +18,5 @@ echo "__DATA__"
 
 cd $1
 
-tar cz dict.dat main
+tar cz dict.dat main graph.pl
 

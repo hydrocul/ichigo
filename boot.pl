@@ -37,7 +37,42 @@ if ( ! -e $dictionaryPath) {
 
 $ENV{"ICHIGO_DICTIONARY_PATH"} = "$tmpdir/$sha1/dict.dat";
 
-# TODO help表示のパスが一時ファイルになってしまっている
+# コマンドライン引数の解釈
+# TODO まだ厳密ではない
+my $graphFlag = '';
+my $i = 0;
+while ($i < @ARGV) {
+    my $arg = $ARGV[$i];
+    if ($arg eq "--graph") {
+        $graphFlag = 1;
+    }
+    $i++;
+}
 
-exec("$tmpdir/$sha1/main", @ARGV);
+# TODO help表示のパスが一時ファイルになってしまっている
+# TODO help表示だったらグラフ表示はしない
+
+if ($graphFlag) {
+
+    my $CHILD_READER;
+    my $PARENT_WRITER;
+    pipe($CHILD_READER, $PARENT_WRITER);
+
+    my $pid1 = fork;
+    if ($pid1) {
+        # 親プロセス
+        close $CHILD_READER;
+        open(STDOUT, '>&=', fileno($PARENT_WRITER));
+        exec("$tmpdir/$sha1/main", @ARGV);
+    } else {
+        # 子プロセス
+        die unless defined $pid1;
+        close $PARENT_WRITER;
+        open(STDIN, '<&=', fileno($CHILD_READER));
+        exec('perl', "$tmpdir/$sha1/graph.pl");
+    }
+
+} else {
+    exec("$tmpdir/$sha1/main", @ARGV);
+}
 

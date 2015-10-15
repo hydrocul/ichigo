@@ -226,3 +226,19 @@ func (dict *Dictionary) getConnCost(rightPosid uint16, leftPosid uint16) int {
 	return int(dict.ConnTable[i])
 }
 
+func (dict *Dictionary) getLeftPosname(leftPosid uint16) []uint8 {
+	if leftPosid == 0xFFFF {
+		return []uint8("-") // TODO hyphenText
+	} else {
+		return []uint8(fmt.Sprintf("L-%d", leftPosid)) // TODO
+	}
+}
+
+func (dict *Dictionary) getRightPosname(rightPosid uint16) []uint8 {
+	if rightPosid == 0xFFFF {
+		return []uint8("-") // TODO hyphenText
+	} else {
+		return []uint8(fmt.Sprintf("R-%d", rightPosid)) // TODO
+	}
+}
+
