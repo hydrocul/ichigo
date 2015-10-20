@@ -17,6 +17,9 @@ type Dictionary struct {
 	Da *DoubleArray
 
 	ConnTable []int16
+
+	LeftPosnames []uint32;
+	RightPosnames []uint32;
 }
 
 type Surface struct {
@@ -66,6 +69,9 @@ func makeDictionary(surfaceArraySize int, morphArraySize int, metaArraySize int)
 	dict.MetaArray[0] = Meta{0, 0, 0, 0, 0}
 
 	dict.ConnTable = make([]int16, int(posidCount) * int(posidCount))
+
+	dict.LeftPosnames = make([]uint32, 0, 32);
+	dict.RightPosnames = make([]uint32, 0, 32);
 
 	return dict
 }
@@ -226,11 +232,19 @@ func (dict *Dictionary) getConnCost(rightPosid uint16, leftPosid uint16) int {
 	return int(dict.ConnTable[i])
 }
 
+func (dict *Dictionary) addLeftPosname(posnameId uint32) {
+	dict.LeftPosnames = append(dict.LeftPosnames, posnameId);
+}
+
+func (dict *Dictionary) addRightPosname(posnameId uint32) {
+	dict.RightPosnames = append(dict.RightPosnames, posnameId);
+}
+
 func (dict *Dictionary) getLeftPosname(leftPosid uint16) []uint8 {
 	if leftPosid == 0xFFFF {
 		return []uint8("-") // TODO hyphenText
 	} else {
-		return []uint8(fmt.Sprintf("L-%d", leftPosid)) // TODO
+		return dict.getText(dict.LeftPosnames[leftPosid]);
 	}
 }
 
@@ -238,7 +252,7 @@ func (dict *Dictionary) getRightPosname(rightPosid uint16) []uint8 {
 	if rightPosid == 0xFFFF {
 		return []uint8("-") // TODO hyphenText
 	} else {
-		return []uint8(fmt.Sprintf("R-%d", rightPosid)) // TODO
+		return dict.getText(dict.RightPosnames[rightPosid]);
 	}
 }
 

@@ -11,16 +11,18 @@ import "strings"
 
 func main() {
 	matrixFile := os.Args[1]
-	textsFile := os.Args[2]
-	dictNormalFile := os.Args[3]
+	leftPosnameFile := os.Args[2]
+	rightPosnameFile := os.Args[3]
+	textsFile := os.Args[4]
+	dictNormalFile := os.Args[5]
 	dict := makeDictionary(400000, 600000, 600000)
 	parseTextsFile(textsFile, dict)
 	parseDictNormalFile(dictNormalFile, dict)
-	if len(os.Args) > 4 {
-		dictMetaFile := os.Args[4]
-		dictParFile := os.Args[5]
-		dictComFile := os.Args[6]
-		dictMorphFile := os.Args[7]
+	if len(os.Args) > 6 {
+		dictMetaFile := os.Args[6]
+		dictParFile := os.Args[7]
+		dictComFile := os.Args[8]
+		dictMorphFile := os.Args[9]
 		metaIdOffset := uint32(len(dict.MetaArray))
 		parseDictMetaFile(dictMetaFile, dict)
 		parseDictParFile(dictParFile, metaIdOffset, dict)
@@ -28,6 +30,8 @@ func main() {
 		parseDictMorphFile(dictMorphFile, metaIdOffset, dict)
 	}
 	parseMatrixFile(matrixFile, dict)
+	parsePosnameFile(leftPosnameFile, false, dict);
+	parsePosnameFile(rightPosnameFile, true, dict);
 	outputDict(dict)
 }
 
@@ -328,6 +332,25 @@ func parseMatrixFile(fname string, dict *Dictionary) {
 		}
 
 		dict.setConnCost(uint16(rightPosid), uint16(leftPosid), int16(cost))
+	}
+}
+
+func parsePosnameFile(fname string, isRight bool, dict *Dictionary) {
+	fp, err := os.Open(fname)
+	if err != nil {
+		panic(err)
+	}
+	defer fp.Close()
+
+	scanner := bufio.NewScanner(fp)
+	for scanner.Scan() {
+		text := scanner.Text()
+		posnameId := _parseText(text, dict)
+		if (isRight) {
+			dict.addRightPosname(posnameId);
+		} else {
+			dict.addLeftPosname(posnameId);
+		}
 	}
 }
 

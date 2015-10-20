@@ -51,6 +51,12 @@ var/download/ipadic.touch: var/download/mkdir dict/ipadic/download.sh
 var/ipadic/matrix.txt: var/ipadic/mkdir var/download/ipadic.touch dict/mecab-matrix.sh
 	sh dict/mecab-matrix.sh var/download/ipadic > var/ipadic/matrix.txt
 
+var/ipadic/left.txt: var/ipadic/mkdir var/download/ipadic.touch dict/mecab-posnames.sh
+	cat var/download/ipadic/left-id.def | sh dict/mecab-posnames.sh > var/ipadic/left.txt
+
+var/ipadic/right.txt: var/ipadic/mkdir var/download/ipadic.touch dict/mecab-posnames.sh
+	cat var/download/ipadic/right-id.def | sh dict/mecab-posnames.sh > var/ipadic/right.txt
+
 var/ipadic/normalized.txt: var/ipadic/mkdir var/download/ipadic.touch dict/mecab-normalize.sh
 	sh dict/mecab-normalize.sh var/download/ipadic > var/ipadic/normalized.txt
 
@@ -60,11 +66,23 @@ var/ipadic/formatted.txt: var/ipadic/mkdir var/ipadic/normalized.txt dict/ipadic
 var/ipadic/dict-normal.txt: var/ipadic/mkdir var/ipadic/formatted.txt
 	cat var/ipadic/formatted.txt | LC_ALL=C sort > var/ipadic/dict-normal.txt
 
-var/ipadic/texts.txt: var/ipadic/mkdir var/ipadic/dict-normal.txt dict/ipadic/texts.sh
-	cat var/ipadic/dict-normal.txt | sh dict/ipadic/texts.sh > var/ipadic/texts.txt
+var/ipadic/texts.txt: var/ipadic/mkdir var/ipadic/dict-normal.txt var/ipadic/left.txt var/ipadic/right.txt dict/ipadic/texts.sh
+	sh dict/ipadic/texts.sh var/ipadic/dict-normal.txt var/ipadic/left.txt var/ipadic/right.txt > var/ipadic/texts.txt
 
-var/ipadic/dict.dat: var/ipadic/mkdir var/ipadic/matrix.txt var/ipadic/dict-normal.txt var/ipadic/texts.txt go/bin/ichigo-build-ipadic
-	go/bin/ichigo-build-ipadic var/ipadic/matrix.txt var/ipadic/texts.txt var/ipadic/dict-normal.txt > var/ipadic/dict.dat.tmp
+var/ipadic/dict.dat: var/ipadic/mkdir \
+	var/ipadic/matrix.txt \
+	var/ipadic/left.txt \
+	var/ipadic/right.txt \
+	var/ipadic/texts.txt \
+	var/ipadic/dict-normal.txt \
+	go/bin/ichigo-build-ipadic
+	go/bin/ichigo-build-ipadic \
+		var/ipadic/matrix.txt \
+		var/ipadic/left.txt \
+		var/ipadic/right.txt \
+		var/ipadic/texts.txt \
+		var/ipadic/dict-normal.txt \
+		> var/ipadic/dict.dat.tmp
 	mv var/ipadic/dict.dat.tmp var/ipadic/dict.dat
 
 var/ipadic/main: go/bin/ichigo-ipadic
@@ -93,6 +111,12 @@ var/download/unidic.touch: var/download/mkdir dict/unidic/download.sh
 var/unidic/matrix.txt: var/unidic/mkdir var/download/unidic.touch dict/mecab-matrix.sh
 	sh dict/mecab-matrix.sh var/download/unidic > var/unidic/matrix.txt
 
+var/unidic/left.txt: var/unidic/mkdir var/download/unidic.touch dict/mecab-posnames.sh
+	cat var/download/unidic/left-id.def | sh dict/mecab-posnames.sh > var/unidic/left.txt
+
+var/unidic/right.txt: var/unidic/mkdir var/download/unidic.touch dict/mecab-posnames.sh
+	cat var/download/unidic/right-id.def | sh dict/mecab-posnames.sh > var/unidic/right.txt
+
 var/unidic/normalized.txt: var/unidic/mkdir var/download/unidic.touch dict/mecab-normalize.sh
 	sh dict/mecab-normalize.sh var/download/unidic > var/unidic/normalized.txt
 
@@ -102,11 +126,23 @@ var/unidic/formatted.txt: var/unidic/mkdir var/unidic/normalized.txt dict/unidic
 var/unidic/dict-normal.txt: var/unidic/mkdir var/unidic/formatted.txt
 	cat var/unidic/formatted.txt | LC_ALL=C sort > var/unidic/dict-normal.txt
 
-var/unidic/texts.txt: var/unidic/mkdir var/unidic/dict-normal.txt dict/unidic/texts.sh
-	cat var/unidic/dict-normal.txt | sh dict/unidic/texts.sh > var/unidic/texts.txt
+var/unidic/texts.txt: var/unidic/mkdir var/unidic/dict-normal.txt var/unidic/left.txt var/unidic/right.txt dict/unidic/texts.sh
+	sh dict/unidic/texts.sh var/unidic/dict-normal.txt var/unidic/left.txt var/unidic/right.txt > var/unidic/texts.txt
 
-var/unidic/dict.dat: var/unidic/mkdir var/unidic/matrix.txt var/unidic/dict-normal.txt var/unidic/texts.txt go/bin/ichigo-build-unidic
-	go/bin/ichigo-build-unidic var/unidic/matrix.txt var/unidic/texts.txt var/unidic/dict-normal.txt > var/unidic/dict.dat.tmp
+var/unidic/dict.dat: var/unidic/mkdir \
+	var/unidic/matrix.txt \
+	var/unidic/left.txt \
+	var/unidic/right.txt \
+	var/unidic/texts.txt \
+	var/unidic/dict-normal.txt \
+	go/bin/ichigo-build-unidic
+	go/bin/ichigo-build-unidic \
+		var/unidic/matrix.txt \
+		var/unidic/left.txt \
+		var/unidic/right.txt \
+		var/unidic/texts.txt \
+		var/unidic/dict-normal.txt \
+		> var/unidic/dict.dat.tmp
 	mv var/unidic/dict.dat.tmp var/unidic/dict.dat
 
 var/unidic/main: go/bin/ichigo-unidic
