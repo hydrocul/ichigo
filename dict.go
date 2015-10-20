@@ -145,12 +145,18 @@ func (dict *Dictionary) getText(id uint32) []uint8 {
 func (dict *Dictionary) addMorphToSurface(surfaceTextId uint32, morphId uint32) {
 	lastSurface := &dict.SurfaceArray[len(dict.SurfaceArray) - 1]
 	if lastSurface.TextDaIndex != surfaceTextId {
-		if cap(dict.SurfaceArray) == len(dict.SurfaceArray) {
-			dict._resizeSurfaceArray()
+		index := dict.Da.getInfo(surfaceTextId)
+		if index == 1 {
+			index = uint32(len(dict.SurfaceArray))
+			if cap(dict.SurfaceArray) == int(index) {
+				dict._resizeSurfaceArray()
+			}
+			dict.SurfaceArray = append(dict.SurfaceArray, Surface{surfaceTextId, make([]uint32, 0, 1)})
+			lastSurface = &dict.SurfaceArray[index]
+			dict.Da.setInfo(surfaceTextId, uint32(index))
+		} else {
+			lastSurface = &dict.SurfaceArray[index];
 		}
-		dict.SurfaceArray = append(dict.SurfaceArray, Surface{surfaceTextId, make([]uint32, 0, 1)})
-		lastSurface = &dict.SurfaceArray[len(dict.SurfaceArray) - 1]
-		dict.Da.setInfo(surfaceTextId, uint32(len(dict.SurfaceArray) - 1))
 	}
 	lastSurface.Morphs = append(lastSurface.Morphs, morphId)
 }

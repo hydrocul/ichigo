@@ -45,7 +45,8 @@ func (da *DoubleArray) _putWordsSub(words []uint32, texts [][]uint8, infos []uin
 
 func (da *DoubleArray) setInfo(daIndex uint32, info uint32) {
   baseOffset := da.Base[daIndex]
-  da.Base[baseOffset + charIndexCount] = info
+  newDaIndex := baseOffset + charIndexCount
+  da.Base[newDaIndex] = info
 }
 
 // その文字に進めない場合は0を返す
