@@ -7,6 +7,9 @@ my $dstDir = $ARGV[1];
 
 my @sources = @ARGV[2..$#ARGV];
 
+my $preprocessor = "preprocess.pl";
+my $preprocessorTiemStamp = (stat($preprocessor))[9];
+
 sub condMatch {
     my @conds = @_;
     foreach my $cond (@conds) {
@@ -25,8 +28,11 @@ sub preprocess {
         $dst = "$dstDir/main.go";
     }
 
-    if (-e $dst && (stat($source))[9] < (stat($dst))[9]) {
-        return '' ;
+    my $timestamp = (stat($dst))[9];
+    if (-e $dst && (stat($source))[9] < $timestamp) {
+        if ($preprocessorTiemStamp < $timestamp) {
+            return '' ;
+        }
     }
 
     print "preprocess: $dst\n";
