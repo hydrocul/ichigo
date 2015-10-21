@@ -37,7 +37,7 @@ sub preprocess {
     my @ifStack = ();
 
     while (my $line = <IN>) {
-        $line =~ s/^(.+)\s*$/$1/;
+        $line =~ s/^(.*)\s*$/$1/;
         if ($line =~ /\A\s*#ifdef\s+([\sa-zA-Z0-9]+)\z/) {
             my @conds = split(/\s+/, $1);
             if (@ifStack && !$ifStack[0]) {
