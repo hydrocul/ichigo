@@ -10,7 +10,7 @@ const maxMorphNodeCodePointCount = 32
 const builtNodeCountPerPath = 64
 const smallMorphArraySize = 64
 const morphResultStackSize = 32
-const pullingOldestMorphNodeArraySize = 64
+const pullingOldestMorphNodeArraySize = 256
 
 var nullText []uint8 = []uint8("")
 var hyphenText []uint8 = []uint8("-")
