@@ -99,7 +99,7 @@ func printVerbose(pipe *Pipe, graphFlag bool) {
 	const stackSize = 16
 	var stack [stackSize]int16
 	var stackTop int = 0
-	var prevComEnd bool = false
+	var prevParStarted bool = false
 	for {
 		morphIndex := pipe.pullSmallMorph()
 		if morphIndex == -8 {
@@ -107,7 +107,7 @@ func printVerbose(pipe *Pipe, graphFlag bool) {
 		}
 		if morphIndex == -1 {
 			// 連結形態素開始
-			if prevComEnd && stackTop > 0 && stack[stackTop - 1] == -2 {
+			if stackTop > 0 && stack[stackTop - 1] == -2 && !prevParStarted {
 				printFlagsOnly("%-")
 			}
 			if stackTop == stackSize {
@@ -115,10 +115,10 @@ func printVerbose(pipe *Pipe, graphFlag bool) {
 			}
 			stack[stackTop] = morphIndex
 			stackTop++
-			prevComEnd = false
+			prevParStarted = false
 		} else if morphIndex == -2 {
 			// 共存形態素開始
-			if prevComEnd && stackTop > 0 && stack[stackTop - 1] == -2 {
+			if stackTop > 0 && stack[stackTop - 1] == -2 && !prevParStarted {
 				printFlagsOnly("%-")
 			}
 			if stackTop == stackSize {
@@ -126,23 +126,24 @@ func printVerbose(pipe *Pipe, graphFlag bool) {
 			}
 			stack[stackTop] = morphIndex
 			stackTop++
-			prevComEnd = false
 			printFlagsOnly("%<")
+			prevParStarted = true
 		} else if morphIndex == -5 {
 			// 連結形態素終了
 			stackTop--
-			prevComEnd = true
+			prevParStarted = false
 		} else if morphIndex == -6 {
 			// 共存形態素終了
 			stackTop--
-			prevComEnd = false
 			printFlagsOnly("%>")
+			prevParStarted = false
 		} else {
-			if prevComEnd && stackTop > 0 && stack[stackTop - 1] == -2 {
+			if stackTop > 0 && stack[stackTop - 1] == -2 && !prevParStarted {
 				printFlagsOnly("%-")
 			}
 			morph := &pipe.smallMorphArray.array[morphIndex]
 			printNode(pipe, morph)
+			prevParStarted = false
 		}
 	}
 }
