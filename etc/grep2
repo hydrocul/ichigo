@@ -1,0 +1,141 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use utf8;
+
+use Encode;
+
+
+my @grepCommand = ("grep", "-nHri");
+my $keyword = '';
+my $keywordLength = 0;
+
+my $color = '';
+my $sortByPrefix = '';
+my $sortBySuffix = '';
+
+$color = 1 if ( -t STDOUT );
+
+sub parseArg() {
+    my $keywordFlag = '';
+    my $filesFlag = '';
+    foreach my $arg (@ARGV) {
+        if ($keywordFlag) {
+            $keywordFlag = '';
+            $filesFlag = 1;
+            $keyword = $arg;
+            push(@grepCommand, $arg);
+        } elsif ($filesFlag) {
+            push(@grepCommand, $arg);
+        } elsif ($arg eq '--sort-by-prefix') {
+            $sortByPrefix = 1;
+            $sortBySuffix = '';
+        } elsif ($arg eq '--sort-by-suffix') {
+            $sortByPrefix = '';
+            $sortBySuffix = 1;
+        } elsif ($arg eq '--color') {
+            $color = 1;
+        } elsif ($arg eq '--color=always') {
+            $color = 1;
+        } elsif ($arg =~ /\A-/) {
+            push(@grepCommand, $arg);
+        } elsif ($arg eq '--') {
+            $keywordFlag = 1;
+            push(@grepCommand, $arg);
+        } else {
+            $filesFlag = 1;
+            $keyword = $arg;
+            push(@grepCommand, $arg);
+        }
+    }
+    $keywordLength = length($keyword);
+}
+
+parseArg();
+
+my @result = ();
+
+sub parseOutput {
+    my ($output) = @_;
+    return unless ($output =~ /^(.+):(\d+):(.*)$/);
+    my $fname = $1;
+    my $lineNo = $2;
+    my $line = $3;
+    my $s = 0;
+    while () {
+        my $p = index($line, $keyword, $s);
+        return if ($p < 0);
+        my $before = substr($line, 0, $p);
+        my $after = substr($line, $p + $keywordLength);
+        if ($sortByPrefix) {
+            my $beforeReverse = encode_utf8(reverse(decode_utf8($before)));
+            push(@result, [$fname, $lineNo, $before, $after, $beforeReverse]);
+        } elsif ($sortBySuffix) {
+            push(@result, [$fname, $lineNo, $before, $after]);
+        } else {
+            if ($color) {
+                print "$fname:$lineNo:$before\x1b[31m$keyword\x1b[0m$after\n";
+            } else {
+                print "$fname:$lineNo:$before$keyword$after\n";
+            }
+        }
+        $s = $p + $keywordLength;
+    }
+}
+
+sub outputResult {
+    if ($sortByPrefix) {
+        @result = sort {
+            $a->[4] cmp $b->[4];
+        } @result;
+    } else {
+        @result = sort {
+            $a->[3] cmp $b->[3];
+        } @result;
+    }
+    foreach my $r (@result) {
+        my $fname = $r->[0];
+        my $lineNo = $r->[1];
+        my $before = $r->[2];
+        my $after = $r->[3];
+        my $before2 = decode_utf8($before);
+        my $after2 = decode_utf8($after);
+        if (length($before2) > 3) {
+            $before2 = substr($before2, length($before2) - 3);
+        }
+        if (length($after2) > 3) {
+            $after2 = substr($after2, 0, 3);
+        }
+        $before2 = encode_utf8($before2);
+        $after2 = encode_utf8($after2);
+        if ($color) {
+            print "$fname:$lineNo:\x1b[32m$before2\x1b[31m$keyword\x1b[32m$after2\x1b[0m:$before\x1b[31m$keyword\x1b[0m$after\n";
+        } else {
+            print "$fname:$lineNo:$before2$keyword$after2:$before$keyword$after\n";
+        }
+    }
+}
+
+my $READER;
+my $WRITER;
+pipe($READER, $WRITER);
+my $pid = fork;
+if ($pid) {
+    close($WRITER);
+    while (my $line = <$READER>) {
+        parseOutput($line);
+    }
+    close($READER);
+    outputResult();
+    wait;
+} elsif (defined $pid) {
+    close($READER);
+    open(STDIN, '<&=', fileno(STDIN));
+    open(STDOUT, '>&=', fileno($WRITER));
+    exec(@grepCommand);
+} else {
+    die;
+}
+
+
