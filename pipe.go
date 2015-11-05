@@ -680,10 +680,10 @@ func (pipe *Pipe) _expandResultCombined(node *MorphNode) {
 		n.surfaceCodePointCount = int(endCodePoint - startCodePoint)
 		if n.surfaceCodePointCount == 0 {
 			codePointOffset := _zeroLengthMorphCodePointOffset(combinedMeta, i)
-			n.leftOriginalBytePos      [0] = node.leftOriginalBytePos      [codePointOffset]
-			n.leftOriginalCodePointPos [0] = node.leftOriginalCodePointPos [codePointOffset]
-			n.rightOriginalBytePos     [0] = node.rightOriginalBytePos     [codePointOffset]
-			n.rightOriginalCodePointPos[0] = node.rightOriginalCodePointPos[codePointOffset]
+			n.leftOriginalBytePos      [0] = node.leftOriginalBytePos     [codePointOffset]
+			n.leftOriginalCodePointPos [0] = node.leftOriginalCodePointPos[codePointOffset]
+			n.rightOriginalBytePos     [0] = n.leftOriginalBytePos     [0];
+			n.rightOriginalCodePointPos[0] = n.leftOriginalCodePointPos[0];
 		} else {
 			copy(n.   leftOriginalBytePos      [0 : n.surfaceCodePointCount],
 			     node.leftOriginalBytePos      [startCodePoint : endCodePoint])
